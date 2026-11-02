@@ -1,0 +1,8 @@
+"/data/mta/Script/Dumps/Scripts/"               : bin_dir
+"/data/mta/Script/Dumps/Scripts/house_keeping/" : house_keeping 
+"/data/mta/Script/Dumps/"                       : main_dir
+"/data/mta/Script/Dumps/Exc/"                   : work_dir
+"/data/mta/Script/Dumps/OTG/TLsave/"            : save_dir
+"/data/mta/www/mta_otg/"                        : arc_dir
+"/data/mta/DataSeeker/data/repository/"         : ds_dir
+"/data/mta/Script/Python3.8/MTA/"               : mta_dir

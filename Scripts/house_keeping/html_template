@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOT OTG Move </title>
+
+<script language="JavaScript">
+    function WindowOpener(imgname) {
+        msgWindow = open("","displayname","toolbar=no,directories=no,menubar=no,location=no,scrollbars=no,status=no,,width=1100,height=900,resize=no");
+        msgWindow.document.clear();
+        msgWindow.document.write("<html><title>Trend plot:   "+imgname+"</TITLE>");
+        msgWindow.document.write("<body>");
+        msgWindow.document.write("<img src='https://cxc.harvard.edu/mta_days/mta_otg/OTG_Plots/"+imgname+"' border =0 style='width:90%;'><p></p></body></hvtml>")
+        msgWindow.document.close();
+        msgWindow.focus();
+    }
+function WindowOpener2(imgname) {
+            msgWindow = open("","displayname","toolbar=no,directories=no,menubar=no,location=no,scrollbars=no,status=no,width=900,height=500,resize=no");
+            msgWindow.document.clear();
+            msgWindow.document.write("<html><title>Trend plot:   "+imgname+"</TITLE>");
+            msgWindow.document.write("<body>");
+            msgWindow.document.write("<img src='./OTG_Plots/"+imgname+"' border =0 style='width:95%;'><p></p></body></hvtml>")
+            msgWindow.document.close();
+            msgWindow.focus();
+    }
+
+</script>
+
+</head>
+<body style="width:95%;margin-left:10px; margin-right;10px;background-color:#FAEBD7;font-family:Georgia, "Times New Roman", Times, serif">
+
+
+<h2>SOT OTG Monitoring</h2>
+
+<p>
+This page tracks the insertions and retractions of the LETG and HETG. The table below shows the recent 
+movements and the "All Data" will show all data since year 2000. 
+</p>
+
+<div style='margin-left:auto;margin-right:auto;'>
+<table border=1 style='margin-left:auto;margin-right:auto;'><tr>
+<td>DIRECTION</td>
+<td>GRATING</td>
+<td>START_TIME</td>
+<td>START_VCDU</td>
+<td>STOP_TIME</td>
+<td>STOP_VCDU</td>
+<td>SUMMARY</td>
+<td>PLOT</td>
+#TABLE#
+</table>
+</div>
+
+<div style='margin-top:30px;'>
+<a href='https://cxc.harvard.edu/mta_days//mta_otg/OTG_filtered.rdb'>See All Data</a>
+</div>
+
+<h3>Example Plots</h3>
+<div style='text-align:center;'>
+<a href='javascript:WindowOpener("N_MOVES_plot.png")'>
+<img src='https://cxc.harvard.edu/mta_days//mta_otg/OTG_Plots/N_MOVES_plot.png' style="width:45%;">
+</a>
+
+<a href='javascript:WindowOpener("N_SHORT_plot.png")'>
+<img src='https://cxc.harvard.edu/mta_days//mta_otg/OTG_Plots/N_SHORT_plot.png' style="width:45%;">
+</a>
+</div>
+
+<h3>All Plots</h3>
+<table cellpadding=10 border=0 style='margin-left:auto;margin-right:auto;'>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_AVG_LONG_plot.png")'>EMF_AVG_LONG</a><br /></td>
+<td><a href='javascript:WindowOpener("f4HPOSARO_plot.png")'>f4HPOSARO</a><br /></td>
+<td><a href='javascript:WindowOpener("N_LONG_plot.png")'>N_LONG</a><br /></td>
+</tr>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_AVG_SHORT_plot.png")'>EMF_AVG_SHORT</a><br /></td>
+<td><a href='javascript:WindowOpener("f4HPOSARO_plot.png")'>f4HPOSARO</a><br /></td>
+<td><a href='javascript:WindowOpener("N_MOVES_plot.png")'>N_MOVES</a><br /></td>
+</tr>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_MAX_LONG_plot.png")'>EMF_MAX_LONG</a><br /></td>
+<td><a href='javascript:WindowOpener("f4HPOSBRO_plot.png")'>f4HPOSBRO</a><br /></td>
+<td><a href='javascript:WindowOpener("N_SHORT_plot.png")'>N_SHORT</a><br /></td>
+</tr>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_MAX_SHORT_plot.png")'>EMF_MAX_SHORT</a><br /></td>
+<td><a href='javascript:WindowOpener("i4HPOSARO_plot.png")'>i4HPOSARO</a><br /></td>
+<td><a href='javascript:WindowOpener("OBC_ERRS_plot.png")'>OBC_ERRS</a><br /></td>
+</tr>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_MIN_LONG_plot.png")'>EMF_MIN_LONG</a><br /></td>
+<td><a href='javascript:WindowOpener("i4HPOSBRO_plot.png")'>i4HPOSBRO</a><br /></td>
+<td><a href='javascript:WindowOpener("T_LONG_plot.png")'>T_LONG</a><br /></td>
+</tr>
+<tr>
+<td><a href='javascript:WindowOpener("EMF_MIN_SHORT_plot.png")'>EMF_MIN_SHORT</a><br /></td>
+<td>&#160;</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</table>
+
+<div style='padding-top:20px; padding-bottom:10px;'>
+<hr />
+<p>
+Last Update: Sept 17, 2021
+</p>
+<p>
+If you have any questions about this page, please contact <a href='mailto:swolk@cfa.harvard.edu'>swolk@cfa.harvard.edu.
+</p>
+
+
+</body></html>
