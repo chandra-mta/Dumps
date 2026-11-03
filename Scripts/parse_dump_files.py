@@ -15,9 +15,6 @@
 
 import os
 import sys
-import re
-import numpy
-import time
 from pathlib import Path
 from glob import glob
 import json
@@ -41,7 +38,18 @@ else:
 
 SCRIPT_STATE_DIR = SCRIPT_ROOT / 'state'
 SCRIPT_RESOURCE_DIR = SCRIPT_ROOT / 'resource'
-SCRIPT_DATA_DIR = SCRIPT_ROOT / 'data'
+
+if os.getenv("DUMP_DATA_DIR") is not None:
+    DUMP_DATA_DIR = Path(os.getenv("DUMP_DATA_DIR"))
+else:
+    DUMP_DATA_DIR = SCRIPT_ROOT / 'data'
+DUMP_DATA_DIR.mkdir(exist_ok=True)
+
+if os.getenv("DUMP_TRACELOG_DIR") is not None:
+    DUMP_TRACELOG_DIR = Path(os.getenv("DUMP_TRACELOG_DIR"))
+else:
+    DUMP_TRACELOG_DIR = SCRIPT_ROOT / 'tracelog'
+DUMP_TRACELOG_DIR.mkdir(exist_ok=True)
 
 def grab_now():
     return datetime.now()
@@ -76,19 +84,12 @@ def _filename_2_time_interval(file):
         stop = datetime.strptime(f"{_dt[0]}:{_dt[3]}:{_dt[4]}","%Y:%j:%H%M")
     return start, stop
 
-def determine_unprocessed_dumps():
+def determine_unprocessed_dumps(processed_dumps : list) -> list:
     """
     Scan through the DUMP_SOURCE_DIR directory and state/processed_dumps.json data files
     to determine which Dump files need to be processed in this run
     """
     all_dump_files = glob(f"{DUMP_SOURCE_DIR}/*Dump_EM*.gz")
-    
-    processed_state_file = SCRIPT_STATE_DIR / "processed_dumps.json"
-    if not processed_state_file.is_file():
-        processed_state_file = SCRIPT_STATE_DIR / "processed_dumps.json~"
-    
-    with open(processed_state_file) as f:
-        processed_dumps = json.load(f)
 
     all_dump_files_set = set(all_dump_files)
     processed_dumps_set = set(processed_dumps)
@@ -111,9 +112,9 @@ def unzip(gzipped_files: list) -> list:
     """
     unzipped_files = []
     for file in gzipped_files:
-        outfile = SCRIPT_DATA_DIR / os.path.basename(file).replace('.gz','')
+        outfile = DUMP_DATA_DIR / os.path.basename(file).replace('.gz','')
         try:
-            subprocess_wrapper(f"cd {SCRIPT_DATA_DIR}; gzip -dc {file} > {outfile}")
+            subprocess_wrapper(f"cd {DUMP_DATA_DIR}; gzip -dc {file} > {outfile}")
             unzipped_files.append(outfile)
         except subprocess.CalledProcessError as e:
             #: Print traceback then continue processing
@@ -121,176 +122,61 @@ def unzip(gzipped_files: list) -> list:
 
     return unzipped_files
 
-def parse_dump_files():
+def run_acorn(dump_files):
+    """
+    Run the DS acorn tool on the unzipped dump files.
+    """
+    now = grab_now()
+    #: Initial setup of command
+    cmd = f"cd {DUMP_DATA_DIR}; source /home/ascds/.ascrc; "
+    #: Individual acorn runs per dump files
+    for file in dump_files:
+        #: Output is CWD of process run, which is set to DUMP_DATA_DIR above.
+        cmd += f"acorn -nOC {SCRIPT_RESOURCE_DIR}/msids.list -f {file}; "
+    try:
+        subprocess_wrapper(cmd)
+    except subprocess.CalledProcessError as e:
+        e.add_note(f"Acorn parsing failed at {now.isoformat()}.")
+        e.add_note(f"Check {DUMP_DATA_DIR}/systemlog.")
+        raise e
 
-    unprocessed_dumps = determine_unprocessed_dumps()
+def parse_dump_files():
+    """
+    Parse the available Dump files into tracelog files into relevant directories
+    """
+    processed_state_file = SCRIPT_STATE_DIR / "processed_dumps.json"
+    if not processed_state_file.is_file():
+        #: Load previous version
+        os.replace(SCRIPT_STATE_DIR / "processed_dumps.json~", SCRIPT_STATE_DIR / "processed_dumps.json")
+    
+    with open(processed_state_file) as f:
+        processed_dumps = json.load(f)
+
+    unprocessed_dumps = determine_unprocessed_dumps(processed_dumps)
     if len(unprocessed_dumps) < 1:
         #: No Dumps to process
         sys.exit(0)
 
     unzipped_dump_files = unzip(unprocessed_dumps)
-    print(unzipped_dump_files)
 
-#-----------------------------------------------------------------------------------
-#-- run_filter_script: collect data and run otg and ccdm filter scripts          ---
-#-----------------------------------------------------------------------------------
-
-def run_filter_script():
-    """
-    collect data and run otg and ccdm filter scripts
-    input:  none, but read from /dsops/GOT/input/*Dump_EM*.gz
-    outout: <working_dir>/*.tl files
-    """
-#
-#--- find which dump data  are new
-#
-    unprocessed_data = copy_unprocessed_dump_em_files()
-
-    if len(unprocessed_data) < 1:
-        exit(1)
-#
-#--- prep and run filtering process
-#
-    for category_file in PROCESS_SELECT:
-        if not os.path.isfile(f"./{category_file}"):
-            os.system(f"cp -f {house_keeping}/{category_file} .")
-        filters_cat(category_file, unprocessed_data)
-#
-#--- remove the local copy of dump files
-#
-    for ent in unprocessed_data:
-        mcf.rm_files(ent)
-#
-#--- move *.tl files to working dir
-#
-    mv_files()
-
-#-----------------------------------------------------------------------------------
-#-- filters_cat: run acorn for filter determined by category files               ---
-#-----------------------------------------------------------------------------------
-
-def filters_cat(category_file, unprocessed_data):
-    """
-    run acorn for category filter
-    input:  unprocessed_data    --- list of data
-    output: various *.tl files
-    """
-    for ent in unprocessed_data:
-        cmd = f"/usr/bin/env PERL5LIB='' /home/ascds/DS.release/bin/acorn -nOC {category_file} -f {ent}"
-        try:
-            bash(cmd, env=ascdsenv)
-        except:
-            pass
-
-#-----------------------------------------------------------------------------------
-#-- copy_unprocessed_dump_em_files: collect unporcessed data and make a list     ---
-#-----------------------------------------------------------------------------------
-
-def copy_unprocessed_dump_em_files():
-    """
-    collect unporcessed data and make a list
-    input:  none, but copy data from /dsops/GOT/input/*Dump_EM_*
-    output: unprocessed_data    ---- a list of data
-            unzipped copies of the data in the current directoy
-    """
-#
-#--- set cut tiime to process the data
-#
-    today = time.strftime('%Y:%j:00:00:00', time.gmtime())
-    cut_time = Chandra.Time.DateTime(today).secs - 86400.0 * 10
-#
-#--- read the list of dump data already processed
-#
-    pfile = house_keeping + 'processed_list'
-    plist = mcf.read_data_file(pfile)
-#
-#--- read the all dump data located in /dsops/GOT/input/ sites
-#
-    cmd = 'ls /dsops/GOT/input/*Dump_EM*gz > '+  zspace
-    os.system(cmd)
-
-    flist = mcf.read_data_file(zspace, remove=1)
-#
-#--- update processed data list file
-#
-    cmd = 'mv ' + pfile + ' ' + pfile + '~'
-    os.system(cmd)
-
-    line = ''
-    for ent in flist:
-        line = line + ent + '\n'
-
-    with open(pfile, 'w') as fo:
-        fo.write(line)
-#
-#--- find new entries
-#
     try:
-        new_data = numpy.setdiff1d(flist, plist)
-    except:
-        new_data = []
-
-    unprocessed_data = []
-
-    for ent in new_data:
-        try:
-            ctime = get_file_time(ent)
-            if ctime < cut_time:
-                continue
-
-            atemp = re.split('\/', ent)
-            fname = atemp[-1]
-            os.system(f"cp {ent} . ; gzip -d {fname}")
-            fname = fname.replace('.gz', '')
-            unprocessed_data.append(fname)
-        except:
-            pass
-#
-#--- write out today dump data list
-#
-    line = ''
-    for ent in unprocessed_data:
-        line = ent + '\t'
-
-    outfile = house_keeping + 'today_dump_files'
-    with open(outfile, 'w') as fo:
-        fo.write(line)
-
-    return unprocessed_data
-
-#---------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------
-
-def get_file_time(ifile):
-
-    atemp = re.split('\/', ifile)
-    btemp = re.split('_', atemp[-1])
-    date  = btemp[0] + ':' + btemp[1] + ':00:00:00'
-    out   = Chandra.Time.DateTime(date).secs
-
-    return out
-
-#---------------------------------------------------------------------------------------
-#-- mv_files: move *.tl files to Dump directory                                       --
-#---------------------------------------------------------------------------------------
-
-def mv_files():
-    """   
-    move *.tl files to Dump directory
-    """
-#
-#--- check systemlog is in working directory and if it does, move to <house_keeping>
-#
-    lfile = work_dir + 'systemlog'
-    if os.path.isfile(lfile):
-        cmd = 'mv -f ' + lfile + ' '  + house_keeping + '.'
-        os.system(cmd)
-
-    cmd = 'mv -f *.tl ' + main_dir 
-    os.system(cmd)
-
-#-------------------------------------------------------------------------------------------
+        run_acorn(unzipped_dump_files)
+    except subprocess.CalledProcessError as e:
+        #: Don't delete the Dump files which were not successfully parsed
+        raise e
+    #: No error, perform cleanup.
+    #: Remove the Dump files in data directory
+    for _file in unzipped_dump_files:
+        Path(_file).unlink(missing_ok=True)
+    #: Move the tracelog files
+    tl_files = glob(f"{DUMP_DATA_DIR}/*.tl")
+    for _file in tl_files:
+        shutil.move(_file, DUMP_TRACELOG_DIR)
+    #: Update the processed list
+    os.replace(SCRIPT_STATE_DIR / "processed_dumps.json", SCRIPT_STATE_DIR / "processed_dumps.json~")
+    latest_processed = processed_dumps + unprocessed_dumps
+    with open(processed_state_file,'w') as f:
+        json.dump(latest_processed, f, indent = 2)
  
 if __name__ == "__main__":
 
