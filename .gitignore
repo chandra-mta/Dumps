@@ -4,6 +4,8 @@ outTest/
 _example/
 # Minor build artifacts
 .version
+# Ignore processing state information. non-source code
+state/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
