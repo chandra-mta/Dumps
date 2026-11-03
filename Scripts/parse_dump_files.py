@@ -14,42 +14,76 @@
 """
 
 import os
-import sys
 import re
 import numpy
 import time
-import Chandra.Time
-#
-#--- from ska
-#
-from Ska.Shell import getenv, bash
-ascdsenv = getenv('source /home/ascds/.ascrc -r release; source /home/mta/bin/reset_param', shell='tcsh')
-#
-#--- read directory path
-#
-path = '/data/mta/Script/Dumps/Scripts/house_keeping/dir_list'
-with open(path, 'r') as f:
-    data = [line.strip() for line in f.readlines()]
+from pathlib import Path
+from glob import glob
+import json
+from datetime import datetime, timedelta
+import shutil
 
-for ent in data:
-    atemp = re.split(':', ent)
-    var  = atemp[1].strip()
-    line = atemp[0].strip()
-    exec("%s = %s" %(var, line))
-
-sys.path.append(bin_dir)
-sys.path.append(mta_dir)
-import mta_common_functions as mcf
 #
-#--- temp writing file name
+#--- Global Directory Pathing
 #
-rtail  = int(time.time()* random.random())
-zspace = '/tmp/zspace' + str(rtail)
+DUMP_SOURCE_DIR = Path(os.getenv("DUMP_SOURCE_DIR") or "/dsops/critical/GOT/input")
+#: Warning for nonexistent DUMP_SOURCE_DIR
+if not DUMP_SOURCE_DIR.is_dir():
+    raise FileNotFoundError(f"DUMP_SOURCE_DIR: {DUMP_SOURCE_DIR} not found.\nEnsure script runs on machine able to see DSOPS (c3po-v, r2d2-v, colossus-v).")
 
-PROCESS_SELECT = ['otg-msids.list', 'msids.list']
-#otg-msids.list is the OTG category
-#msids.list is the CCDM category
-#msids_sim.list is the SIM category
+if os.getenv('SCRIPT_ROOT') is not None:
+    SCRIPT_ROOT = Path(os.getenv('SCRIPT_ROOT'))
+else:
+    SCRIPT_ROOT = Path(__file__).resolve().parent
+
+SCRIPT_STATE_DIR = SCRIPT_ROOT / 'state'
+SCRIPT_RESOURCE_DIR = SCRIPT_ROOT / 'resource'
+
+def grab_now():
+    return datetime.now()
+
+def _filename_2_time_interval(file):
+    """
+    Parse Dump file name to time interval of data
+    """
+    name = os.path.basename(file)
+    #: Parse the datetime interval of data from the filename
+    _dt = name.split('_')
+    #: [year, start_doy, start_hhmm, stop_doy, stop_hhmm, ...]
+    start = datetime.strptime(f"{_dt[0]}:{_dt[1]}:{_dt[2]}","%Y:%j:%H%M")
+    if int(_dt[1]) > int(_dt[3]):
+        #: Year Change
+        stop = datetime.strptime(f"{int(_dt[0])+1}:{_dt[3]}:{_dt[4]}","%Y:%j:%H%M")
+    else:
+        stop = datetime.strptime(f"{_dt[0]}:{_dt[3]}:{_dt[4]}","%Y:%j:%H%M")
+    return start, stop
+
+def determine_unprocessed_dumps():
+    """
+    Scan through the DUMP_SOURCE_DIR directory and state/processed_dumps.json data files
+    to determine which Dump files need to be processed in this run
+    """
+    all_dump_files = glob(f"{DUMP_SOURCE_DIR}/*Dump_EM*.gz")
+    
+    processed_state_file = SCRIPT_STATE_DIR / "processed_dumps.json"
+    if not processed_state_file.is_file():
+        processed_state_file = SCRIPT_STATE_DIR / "processed_dumps.json~"
+    
+    with open(processed_state_file) as f:
+        processed_dumps = json.load(f)
+
+    all_dump_files_set = set(all_dump_files)
+    processed_dumps_set = set(processed_dumps)
+
+    unprocessed_set = all_dump_files_set - processed_dumps_set
+    unprocessed_list = []
+    cutoff = grab_now() - timedelta(days=10)
+    for file in unprocessed_set:
+        start, stop = _filename_2_time_interval(file)
+        if start > cutoff:
+            unprocessed_list.append(file)
+    
+    return sorted(unprocessed_list)
 
 
 #-----------------------------------------------------------------------------------
@@ -215,5 +249,7 @@ def mv_files():
  
 if __name__ == "__main__":
 
-    run_filter_script()
+    #run_filter_script()
+
+    print(determine_unprocessed_dumps())
 
