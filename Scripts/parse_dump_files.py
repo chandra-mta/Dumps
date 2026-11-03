@@ -14,6 +14,7 @@
 """
 
 import os
+import sys
 import re
 import numpy
 import time
@@ -21,7 +22,9 @@ from pathlib import Path
 from glob import glob
 import json
 from datetime import datetime, timedelta
+import subprocess
 import shutil
+import traceback
 
 #
 #--- Global Directory Pathing
@@ -38,9 +41,24 @@ else:
 
 SCRIPT_STATE_DIR = SCRIPT_ROOT / 'state'
 SCRIPT_RESOURCE_DIR = SCRIPT_ROOT / 'resource'
+SCRIPT_DATA_DIR = SCRIPT_ROOT / 'data'
 
 def grab_now():
     return datetime.now()
+
+def subprocess_wrapper(cmds):
+    """
+    When shell is True, must pass all commands as a single string.
+    """
+    result = subprocess.run(
+        cmds,
+        shell=True,
+        executable='/bin/tcsh',
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    return result
 
 def _filename_2_time_interval(file):
     """
@@ -85,6 +103,33 @@ def determine_unprocessed_dumps():
     
     return sorted(unprocessed_list)
 
+def unzip(gzipped_files: list) -> list:
+    """
+    Run the gzip command with adjustable file location
+
+    Returns the unzipped file locations as a list following processing
+    """
+    unzipped_files = []
+    for file in gzipped_files:
+        outfile = SCRIPT_DATA_DIR / os.path.basename(file).replace('.gz','')
+        try:
+            subprocess_wrapper(f"cd {SCRIPT_DATA_DIR}; gzip -dc {file} > {outfile}")
+            unzipped_files.append(outfile)
+        except subprocess.CalledProcessError as e:
+            #: Print traceback then continue processing
+            traceback.print_exc()
+
+    return unzipped_files
+
+def parse_dump_files():
+
+    unprocessed_dumps = determine_unprocessed_dumps()
+    if len(unprocessed_dumps) < 1:
+        #: No Dumps to process
+        sys.exit(0)
+
+    unzipped_dump_files = unzip(unprocessed_dumps)
+    print(unzipped_dump_files)
 
 #-----------------------------------------------------------------------------------
 #-- run_filter_script: collect data and run otg and ccdm filter scripts          ---
@@ -249,7 +294,5 @@ def mv_files():
  
 if __name__ == "__main__":
 
-    #run_filter_script()
-
-    print(determine_unprocessed_dumps())
+    parse_dump_files()
 
