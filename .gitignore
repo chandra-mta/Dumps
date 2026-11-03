@@ -7,6 +7,7 @@ _example/
 # Ignore processing state information. non-source code
 state/
 data/
+tracelog/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
