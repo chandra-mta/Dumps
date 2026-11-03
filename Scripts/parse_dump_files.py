@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 import subprocess
 import shutil
 import traceback
+import argparse
 
 #
 #--- Global Directory Pathing
@@ -140,7 +141,7 @@ def run_acorn(dump_files):
         e.add_note(f"Check {DUMP_DATA_DIR}/systemlog.")
         raise e
 
-def parse_dump_files():
+def parse_dump_files(verbose : bool):
     """
     Parse the available Dump files into tracelog files into relevant directories
     """
@@ -155,8 +156,15 @@ def parse_dump_files():
     unprocessed_dumps = determine_unprocessed_dumps(processed_dumps)
     if len(unprocessed_dumps) < 1:
         #: No Dumps to process
+        if verbose:
+            print("No Dumps to process.")
         sys.exit(0)
-
+    
+    if verbose:
+        print("Parsing the following dumps:")
+        for _ in unprocessed_dumps:
+            print(_)
+    
     unzipped_dump_files = unzip(unprocessed_dumps)
 
     try:
@@ -165,6 +173,8 @@ def parse_dump_files():
         #: Don't delete the Dump files which were not successfully parsed
         raise e
     #: No error, perform cleanup.
+    if verbose:
+        print("Dumps processed. Performing cleanup, moving tracelogs.")
     #: Remove the Dump files in data directory
     for _file in unzipped_dump_files:
         Path(_file).unlink(missing_ok=True)
@@ -179,6 +189,9 @@ def parse_dump_files():
         json.dump(latest_processed, f, indent = 2)
  
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action=argparse.BooleanOptionalAction, default=False, help = "Print status update messages")
+    args = parser.parse_args()
 
-    parse_dump_files()
+    parse_dump_files(args.verbose)
 
