@@ -1,26 +1,24 @@
-#!/usr/bin/env /data/mta/Script/Python3.8/envs/ska3-shiny/bin/python
+#!/usr/bin/env python
 
-#############################################################################################
-#                                                                                           #
-#       run_filter_scripts.py:  collect data and run otg and ccdm filter scripts            #
-#                                                                                           #
-#               author: t. isobe (tisobe@cfa.harvard.edu)                                   #
-#                                                                                           #
-#               last update: Mar 04, 2021                                                   #
-#                                                                                           #
-#############################################################################################
+"""
+
+**parse_dump_files.py:** Copy GOT Dump files and run acorn to parse Dumps into telemetry files
+
+:Author: w. aaron (william.aaron@sao.si.edu)
+:Last Updated: 2026-11-02
+
+:NOTE: Acorn can only generate the telemetry files for parsing a dump file into the current working directory,
+    so this should be determined by shell script or cron job calling the parse_dump_files.py scripts.
+    Note that this limitation does not apply to file paths for config files or input Dump file.
+
+"""
 
 import os
 import sys
 import re
-import string
-import random
-import operator
-import math
 import numpy
 import time
 import Chandra.Time
-import unittest
 #
 #--- from ska
 #
