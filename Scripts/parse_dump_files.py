@@ -32,24 +32,25 @@ DUMP_SOURCE_DIR = Path(os.getenv("DUMP_SOURCE_DIR") or "/dsops/critical/GOT/inpu
 if not DUMP_SOURCE_DIR.is_dir():
     raise FileNotFoundError(f"DUMP_SOURCE_DIR: {DUMP_SOURCE_DIR} not found.\nEnsure script runs on machine able to see DSOPS (c3po-v, r2d2-v, colossus-v).")
 
-if os.getenv('SCRIPT_ROOT') is not None:
-    SCRIPT_ROOT = Path(os.getenv('SCRIPT_ROOT'))
+if os.getenv('DUMPS_PROCESS_ROOT') is not None:
+    DUMPS_PROCESS_ROOT = Path(os.getenv('DUMPS_PROCESS_ROOT'))
 else:
-    SCRIPT_ROOT = Path(__file__).resolve().parent
+    #: Running script is in a script subdirectory to the Dumps processing root.
+    DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
 
-SCRIPT_STATE_DIR = SCRIPT_ROOT / 'state'
-SCRIPT_RESOURCE_DIR = SCRIPT_ROOT / 'resource'
+SCRIPT_STATE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'state'
+SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'resource'
 
 if os.getenv("DUMP_DATA_DIR") is not None:
     DUMP_DATA_DIR = Path(os.getenv("DUMP_DATA_DIR"))
 else:
-    DUMP_DATA_DIR = SCRIPT_ROOT / 'data'
+    DUMP_DATA_DIR = DUMPS_PROCESS_ROOT / 'data'
 DUMP_DATA_DIR.mkdir(exist_ok=True)
 
 if os.getenv("DUMP_TRACELOG_DIR") is not None:
     DUMP_TRACELOG_DIR = Path(os.getenv("DUMP_TRACELOG_DIR"))
 else:
-    DUMP_TRACELOG_DIR = SCRIPT_ROOT / 'tracelog'
+    DUMP_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
 DUMP_TRACELOG_DIR.mkdir(exist_ok=True)
 
 def grab_now():
