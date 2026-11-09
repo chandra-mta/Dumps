@@ -1,0 +1,17 @@
+# Dev Exclusions
+.git/
+.gitignore
+__pycache__/
+_example/
+deploy-exclude.txt
+version.conf
+
+# Exclusions for Script Root
+tracelog/
+data/
+state/
+
+
+# Exclusions for Legacy Filepaths used for Dumps_Mon
+IN/
+Done/
