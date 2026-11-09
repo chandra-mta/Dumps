@@ -1,9 +1,9 @@
-#!/proj/sot/ska3/flight/bin/python
+#!/usr/bin/env python
 """
 **update_par.py:** read op_limits.db database to update .par files for dumps monitoring
 
 :Author: w. aaron ( william.aaron@cfa.harvard.edu)
-:Last Updated: Nov 08, 2023
+:Last Updated: Nov 09, 2026
 
 # /// testing
 # tested-ska-release = "2026.1"
@@ -12,7 +12,8 @@
 
 import os
 import time
-
+from cxotime import CxoTime
+from pathlib import Path
 #
 #--- Globals
 #
@@ -24,7 +25,9 @@ OUT_DIR = MAIN_DIR
 PAR_FILE_LIST = [f"{MAIN_DIR}/aca_check.par",f"{MAIN_DIR}/acis_check.par",f"{MAIN_DIR}/acis_temp.par"]
 OVERWRITE_WITH_OP_LIMITS = True
 OVERWRITE_WITH_ACIS = True
-CHANDRA_TIME_DIFF = 883612730.816
+
+def _grab_cxonow():
+    return CxoTime()
 
 def update_par():
     """
@@ -113,6 +116,7 @@ def update_acis_ver_par(par_dict):
     """
     #Note that the acis text file does not specify temperature units, consistently using celcius only.
     msid_list = list(par_dict.keys())
+    now = _grab_cxonow()
 
     with open(ACIS_THERMAL_LIMITS,'r') as f:
         data = [x.strip().split() for x in f.readlines() if x[0] != '#']
@@ -135,7 +139,7 @@ def update_acis_ver_par(par_dict):
             comment = entry_list[6]
             if comment[0] != "#":
                 comment = f"#{comment}"
-            update_time = time.time() - CHANDRA_TIME_DIFF
+            update_time = float(now.secs)
             par_dict[msid] = [[yel_min, yel_max, red_min, red_max, yel_min, yel_max, red_min, red_max, comment] , update_time]
     
     return par_dict
