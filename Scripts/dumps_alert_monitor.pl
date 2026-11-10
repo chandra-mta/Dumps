@@ -18,59 +18,24 @@ use File::Basename qw( dirname );
 use lib dirname(abs_path($0)); # updates @INC with path to executable
 use File::Find;
 
-#use Chex;
-# 02/09/01 BS Chex_tst allows 0=360 for ra and roll
-#use Chex_tst;
 use Chex;
-# 10/25/01 BS change alerts to sot_yellow, but only send once
-#             delete ./.dumps_mon_lock to rearm
-# 04/12/02 BS added alerts on Reaction Wheel speeds < $spdlim
-# 06/26/02 BS added alerts on ACIS temps
-# 04/03/03 BS added IRU current alert
-# 04/25/03 BS added ACIS DEA HK TEMP alerts
-# 05/07/03 BS added Dither alerts
-# 06/26/03 BS change IRU alert to 2-hour mode calculation
-#use Statistics::Descriptive::Discrete;
 use Discrete;
-# 12/16/03 BS add alert for tephin (in iru files, for convenience)
-# 12/19/03 BS add alert for HKP27V (in iru files, for convenience)
-# 03/29/04 BS send HKP27V to sot_yellow_alert, resend TEPHIN if > 102 F
-# 06/03/04 BS added ephin 5EHSE300
-# 02/10/05 BS added PLINE04
-# 11/17/09 BS change EPHIN EBOX and TEPHIN limits
-# 09/15/10 BS report max/mins in alerts
-# 01/10/11 BS increase tephin limit
 
 # ************** Program Parameters ***************************
 
-#  allowable lag time for moves (seconds) # obsolete in v2.0
-#$tsclagtime = 500;
-#$falagtime = 200;
-#$gratlagtime = 1000;
-#$qtlagtime = 2000;
-
-#  added 11/28 BS allowable recover time
-#   do not report violations that exhibit recovery within rectime seconds
-#$rectime = 340;
+#: Allowable Recovery Time
 $rectime = 1200;
 
 #  violation limits
 $tscposlim = 5;  # steps
 $faposlim = 5;   # steps
 $ralim = 0.05;   # degrees
-#$ralim = 0.000001;   # degrees #debug
 $declim = 0.05;  # degrees
 $rolllim = 0.05; # degrees
 
 $spdlim = 52.4;  # reaction speed alert limt rad/sec
 $tratlim = 60 ;  # 3TRMTRAT (SIM temp) limit
 $tratmax = 60 ;  # 3TRMTRAT (SIM temp) limit
-#$spdlim = 205;  # test reaction speed alert limt rad/sec
-
-#  gratings parameters # inactive
-#$gratinpar = 20;  # position where gratings is considered inserted
-#$gratoutpar = 65;  # position where gratings is considered retracted
-$gratlim = 10;    # allowable disagreement between A and B readings
 
 # iru limits
 $airu1g1i_lim=200;
@@ -114,11 +79,7 @@ $acis_mail = "acisdude\@cfa.harvard.edu";
 # Script Logic
 
 my $tracelog_dir = env_or_default('DUMP_TRACELOG_DIR', '/data/mta/Script/Dump/tracelog');
-my %tracelog_files_hash = pull_tl_files($tracelog_dir);
-
-foreach my $file (@{$tracelog_files_hash{pcad}}) {
-    print "$file\n";
-}
+my %tracelog_files_hashref = pull_tl_files($tracelog_dir);
 
 my @ccdmfiles = @{$tracelog_files_hashref->{ccdm}};
 my @pcadfiles = @{$tracelog_files_hashref->{pcad}};
