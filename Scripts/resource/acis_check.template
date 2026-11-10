@@ -1,0 +1,57 @@
+		Health & Safety 		Data Quality
+mnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions
+1CBAT    -72.30    -52.00    -74.70    -50.00    -72.30    -52.00    -74.70    -50.00    #Camera Body Temp A
+1CBBT    -72.30    -52.00    -74.70    -50.00    -72.30    -52.00    -74.70    -50.00    #Camera Body Temp B
+1CRAT    -137.00    -90.00    -142.00    -80.00    -137.00    -90.00    -142.00    -80.00    #Cold Radiator Temp A
+1DACTBT    -40.00    6.36    -52.50    11.42    -40.00    6.36    -52.50    11.42    #DA Collimator-Top Temp. B
+1DEAMZT    -20.00    40.50    -37.50    42.50    -20.00    40.50    -37.50    42.50    #DEA -Z Panel Temp (RT830)
+1DPAMYT    -20.00    37.50    -37.50    40.50    -20.00    37.50    -37.50    40.50    #DPA -Y Panel Temp (RT810)
+1DPAMZT    -20.00    40.50    -37.50    42.50    -20.00    40.50    -37.50    42.50    #DPA -Z Panel Temp (RT830)
+1PDEAAT    -10.00    57.00    -36.50    62.00    -10.00    57.00    -36.50    62.00    #PSMC DEA Power Supply Temp A
+1PDEABT    -10.00    57.00    -36.50    62.00    -10.00    57.00    -36.50    62.00    #PSMC DEA Power Supply Temp B
+1PIN1AT    -20.00    71.00    -36.50    999.00    -20.00    71.00    -36.50    999.00    #PSMC Temp 1A
+1SSMYT    -20.00    40.00    -37.50    42.00    -20.00    40.00    -37.50    42.00    #Suppt Structure -Y Panel Temp (RT811)
+1SSPYT    -20.00    40.00    -37.50    42.00    -20.00    40.00    -37.50    42.00    #Suppt Structure +Y Panel Temp (RT810)
+1WRAT    -90.00    -60.00    -103.50    -50.00    -90.00    -60.00    -103.50    -50.00    #Warm Radiator Temp A
+1WRBT    -90.00    -60.00    -103.50    -50.00    -90.00    -60.00    -103.50    -50.00    #Warm Radiator Temp B
+1DAHACU    -998.00    0.16    -999.00    999.00    -998.00    0.16    -999.00    999.00    #Detector Assy. Htr Current A
+1DAHBCU    -998.00    0.20    -999.00    999.00    -998.00    0.20    -999.00    999.00    #Detector Assy. Htr Current B
+1DAHBVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #Detector Assy. Htr Voltage B
+1DAHHBVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DA Housing Htr +28V Input B
+1DAHAVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #Detector Assy. Htr Voltage A
+1DAHHAVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DA Housing Htr +28V Input A
+1DE28AVO    24.50    34.00    22.00    999.00    24.50    34.00    22.00    999.00    #DEA +28V Input A
+1DE28BVO    24.50    34.00    22.00    999.00    24.50    34.00    22.00    999.00    #DEA +28V Input B
+1DEN0AVO    -6.70    -5.90    -7.50    -5.00    -6.70    -5.90    -7.50    -5.00    #DEA -6V Voltage A
+1DEN0BVO    -1.00    998.00    -999.00    999.00    -1.00    998.00    -999.00    999.00    #DEA -6V Voltage B
+1DEN1AVO    -16.80    -15.00    -19.00    -14.00    -16.80    -15.00    -19.00    -14.00    #DEA -15V Voltage A
+1DEN1BVO    -16.80    998.00    -999.00    999.00    -16.80    998.00    -999.00    999.00    #DEA -15V Voltage B
+1DEP0AVO    5.90    6.52    5.00    7.50    5.90    6.52    5.00    7.50    #DEA +6V Voltage A
+1DEP0BVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DEA +6V Voltage B
+1DEP1AVO    14.80    17.00    13.00    19.00    14.80    17.00    13.00    19.00    #DEA +15V Analog A
+1DEP1BVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DEA +15V Analog B
+1DEP2AVO    23.90    26.50    22.00    28.00    23.90    26.50    22.00    28.00    #DEA +24V Analog A
+1DEP2BVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DEA +24V Analog B
+1DEP3AVO    29.30    32.30    27.00    34.00    29.30    32.30    27.00    34.00    #DEA +28V Analog A
+1DEP3BVO    -998.00    1.00    -999.00    999.00    -998.00    1.00    -999.00    999.00    #DEA +28V Analog B
+1DP28AVO    24.50    34.00    22.00    999.00    24.50    34.00    22.00    999.00    #DPA +28V Input A
+1DP28BVO    24.50    34.00    22.00    999.00    24.50    34.00    22.00    999.00    #DPA +28V Input B
+1DPICACU    0.35    1.75    -999.00    999.00    0.35    1.75    -999.00    999.00    #DPA Input Current A
+1DPICBCU    0.20    1.75    -999.00    999.00    0.20    1.75    -999.00    999.00    #DPA Input Current B
+1DPP0AVO    5.02    5.54    4.75    5.75    5.02    5.54    4.75    5.75    #DPA +5V Analog A
+1DPP0BVO    5.02    5.54    4.75    5.75    5.02    5.54    4.75    5.75    #DPA +5V Analog B
+1MAHCAT    210.00    998.00    200.00    999.00    210.00    998.00    200.00    999.00    #Door Close Actuator Temp A
+1MAHCBT    210.00    998.00    200.00    999.00    210.00    998.00    200.00    999.00    #Door Close Actuator Temp B
+1MAHOAT    210.00    998.00    200.00    999.00    210.00    998.00    200.00    999.00    #Door Open Actuator Temp A
+1MAHOBT    210.00    998.00    200.00    999.00    210.00    998.00    200.00    999.00    #Door Open Actuator Temp B
+1OAHAT    -45.00    20.00    -56.50    36.50    -45.00    20.00    -56.50    36.50    #Open Actuator Temp Cold Side A
+1OAHBT    -45.00    20.00    -56.50    36.50    -45.00    20.00    -56.50    36.50    #Open Actuator Housing Temp Side B
+1VAHCAT    210.0    998.0    200.0    999.0    210.0    998.0    200.0    999.0    #TEMPERATURE
+1VAHCBT    210.0    998.0    200.0    999.0    210.0    998.0    200.0    999.0    #TEMPERATURE
+1VAHOAT    210.0    998.0    200.0    999.0    210.0    998.0    200.0    999.0    #TEMPERATURE
+1VAHOBT    210.0    998.0    200.0    999.0    210.0    998.0    200.0    999.0    #TEMPERATURE
+1DACTAT    66.90    75.00    64.30    80.00    66.90    75.00    64.30    80.00    #Door Angle Potentiometer A
+1DAHAT    -998.00    998.00    -999.00    999.00    -998.00    998.00    -999.00    999.00    #Detector Assy. Housing Temp A Offset
+1DAHBT    -998.00    998.00    -999.00    999.00    -998.00    998.00    -999.00    999.00    #Detector Assy. Housing Temp B Offset
+1DEICACU    -998.00    999.00    -999.00    999.00    -998.00    999.00    -999.00    999.00    #DEA Input Current A
+1DEICBCU    -998.00    999.00    -999.00    999.00    -998.00    999.00    -999.00    999.00    #DEA Input Current B
