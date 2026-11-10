@@ -16,6 +16,7 @@
 use Cwd qw( abs_path );
 use File::Basename qw( dirname );
 use lib dirname(abs_path($0)); # updates @INC with path to executable
+use File::Find;
 
 #use Chex;
 # 02/09/01 BS Chex_tst allows 0=360 for ra and roll
@@ -119,21 +120,18 @@ foreach my $file (@{$tracelog_files_hash{pcad}}) {
     print "$file\n";
 }
 
-my @ccdm_files = @{$tracelog_files_hashref->{ccdm}};
-my @pcad_files = @{$tracelog_files_hashref->{pcad}};
-my @acis_files = @{$tracelog_files_hashref->{acis}};
-my @iru_files  = @{$tracelog_files_hashref->{iru}};
-my @mups_files = @{$tracelog_files_hashref->{mups}};
+my @ccdmfiles = @{$tracelog_files_hashref->{ccdm}};
+my @pcadfiles = @{$tracelog_files_hashref->{pcad}};
+my @acisfiles = @{$tracelog_files_hashref->{acis}};
+my @irufiles  = @{$tracelog_files_hashref->{iru}};
+my @mupsfiles = @{$tracelog_files_hashref->{mups}};
 
 # Parse input arguments
 &parse_args;
 
-my @ccdmfiles;
-my @pcadfiles;
-my @acisfiles;
-my @irufiles;
+# deatfiles ACIS DEA values. Input data file not updated since 2015. Consult again soon but leave broken for now.
 my @deatfiles;
-my @mupsfiles;
+
 my $pcadfile;
 my $ccdmfile;
 my $acisfile;
@@ -187,145 +185,6 @@ my @airu1g1iarr; #iru A g1 current
 my @pline04arr; #mups pline04
 my @mnframarr; #minor frame number
 
-if ($cinfile =~ /^\@/) {
-    $cinfile = substr($cinfile, 1);
-
-    my @patharr = split("/", $cinfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open CFILE, "<$cinfile";
-    
-    $counter = 0;
-    while($ccdmfile = <CFILE>) {
-	chomp $ccdmfile;
-	#$ccdmfiles[$counter++] = $path . $ccdmfile;
-	$ccdmfiles[$counter++] = $ccdmfile;
-    }
-    close CFILE;
-}
-else {
-    $ccdmfiles[0] = $cinfile;
-}
-
-if ($pinfile =~ /^\@/) {
-    $pinfile = substr($pinfile, 1);
-
-    my @patharr = split("/", $pinfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open PFILE, "<$pinfile";
-    
-    $counter = 0;
-    while($pcadfile = <PFILE>) {
-	chomp $pcadfile;
-	#$pcadfiles[$counter++] = $path . $pcadfile;
-	$pcadfiles[$counter++] = $pcadfile;
-    }
-    close PFILE;
-}
-else {
-    $pcadfiles[0] = $pinfile;
-}
-
-if ($ainfile =~ /^\@/) {
-    $ainfile = substr($ainfile, 1);
-
-    my @patharr = split("/", $ainfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open AFILE, "<$ainfile";
-    
-    $counter = 0;
-    while($acisfile = <AFILE>) {
-	chomp $acisfile;
-	$acisfiles[$counter++] = $acisfile;
-    }
-    close AFILE;
-}
-else {
-    $acisfiles[0] = $ainfile;
-}
-
-if ($ginfile =~ /^\@/) {
-    $ginfile = substr($ginfile, 1);
-
-    my @patharr = split("/", $ginfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open GFILE, "<$ginfile";
-    
-    $counter = 0;
-    while($irufile = <GFILE>) {
-	chomp $irufile;
-	$irufiles[$counter++] = $irufile;
-    }
-    close GFILE;
-}
-else {
-    $irufiles[0] = $ginfile;
-}
-
-if ($dtinfile =~ /^\@/) {
-    $dtinfile = substr($dtinfile, 1);
-
-    my @patharr = split("/", $dtinfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open DTFILE, "<$dtinfile";
-    
-    $counter = 0;
-    while($deatfile = <DTFILE>) {
-	chomp $deatfile;
-	$deatfiles[$counter++] = $deatfile;
-    }
-    close DTFILE;
-}
-else {
-    $deatfiles[0] = $dtinfile;
-}
-
-if ($mupsfile =~ /^\@/) {
-    $mupsfile = substr($mupsfile, 1);
-
-    my @patharr = split("/", $mupsfile);
-    my $path = "";
-    
-    for ($ii = 0; $ii < $#patharr; $ii++) {
-	$path .= "/$patharr[$ii]";
-    }
-
-    open DTFILE, "<$mupsfile";
-    
-    $counter = 0;
-    while($mupsfile = <DTFILE>) {
-	chomp $mupsfile;
-	$mupsfiles[$counter++] = $mupsfile;
-    }
-    close DTFILE;
-}
-else {
-    $mupsfiles[0] = $mupsfile;
-}
 
 # *********************************************************
 # read dump data
