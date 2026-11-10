@@ -1,5 +1,5 @@
 		Health & Safety 		Data Quality
 mnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions
-1PDEAAT    -10.00    57.00    -36.50    62.00    -10.00    57.00    -36.50    62.00    #PSMC DEA Power Supply Temp A
-1PDEABT    -10.00    57.00    -36.50    62.00    -10.00    57.00    -36.50    62.00    #PSMC DEA Power Supply Temp B
-1PIN1AT    -20.00    71.00    -36.50    999.00    -20.00    71.00    -36.50    999.00    #PSMC Temp 1A
+1PDEAAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp A
+1PDEABT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp B
+1PIN1AT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC Temp 1A
