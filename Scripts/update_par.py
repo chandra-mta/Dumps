@@ -30,7 +30,7 @@ else:
     DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
 
 SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'resource'
-DUMPS_MON_PARAMETER_DIR = DUMPS_PROCESS_ROOT / 'parameter'
+DUMPS_MON_PARAMETER_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'parameter'
 DUMPS_MON_PARAMETER_DIR.mkdir(exist_ok=True)
 
 if os.getenv("DUMP_TRACELOG_DIR") is not None:
