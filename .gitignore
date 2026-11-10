@@ -8,6 +8,7 @@ _example/
 state/
 data/
 tracelog/
+parameter/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

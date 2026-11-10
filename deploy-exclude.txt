@@ -6,10 +6,12 @@ _example/
 deploy-exclude.txt
 version.conf
 
-# Exclusions for Script Root
+# Exclusions for installation data files
+# These contain intermediary files, configs, and processing state information which isn't source code
 tracelog/
 data/
 state/
+parameter/
 
 
 # Exclusions for Legacy Filepaths used for Dumps_Mon
