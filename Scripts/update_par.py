@@ -13,6 +13,7 @@
 import os
 from cxotime import CxoTime
 from pathlib import Path
+import argparse
 #
 #--- Globals
 #
@@ -45,16 +46,33 @@ PAR_FILE_TEMPLATE_LIST = [
 OVERWRITE_WITH_OP_LIMITS = True
 OVERWRITE_WITH_ACIS = True
 
+_HEADER = "		Health & Safety 		Data Quality\nmnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions\n"
+
+class FileWriter:
+    """Write text contents out to text files in configured directory"""
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.directory.mkdir(parents=True, exist_ok=True)
+    def write(self, filename, content):
+        with open(self.directory / filename, "w") as f:
+            f.write(content)
+
+class StdoutWriter:
+    """Write text contents to stdout, typically for a test run of the script"""
+    def write(self, filename, content):
+        print(f"===== {filename} =====")
+        print(content, end="")
+
 def _grab_cxonow():
     return CxoTime()
 
-def update_par():
+def update_par(writer):
     """
     update_par - Permute across .par files and pull data for updating file
     input: none, but read from list of .par files and op_limits_db to update .par files
     output: updated .par files (locally saved)
     """
-    for file in PAR_FILE_LIST:
+    for file in PAR_FILE_TEMPLATE_LIST:
         with open(file,'r') as f:
             raw_data =  f.readlines()
         #Maintain header as the same format of content
@@ -78,14 +96,11 @@ def update_par():
         if OVERWRITE_WITH_ACIS:
             par_dict = update_acis_ver_par(par_dict)
         
-        ofile = f"{OUT_DIR}/{os.path.basename(file)}"
-        with open(ofile,'w') as f:
-            for line in header:
-                f.write(line)
-            for k,v in par_dict.items():
-                line = f"{k}    {'    '.join(v[0])}\n"
-                f.write(line)
-
+        content = _HEADER
+        for k,v in par_dict.items():
+            content += f"{k}    {'    '.join(v[0])}\n"
+        
+        writer.write(file.with_suffix('.par').name, content)
 
 def update_par_file_data(par_dict):
     """
@@ -176,4 +191,13 @@ def format_K_to_C(val, chk):
     return str(round(val,2))
     
 if __name__ == "__main__":
-    update_par()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", help = "Determine data output path. Write stdout for standard out.")
+    args = parser.parse_args()
+
+    if args.path == "stdout":
+        writer = StdoutWriter()
+    else:
+        writer = FileWriter(args.path or DUMPS_MON_PARAMETER_DIR)
+
+    update_par(writer)
