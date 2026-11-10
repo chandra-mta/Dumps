@@ -1,5 +1,4 @@
-#!/usr/bin/env /usr/bin/perl
-##!/proj/axaf/bin/perl -w
+#!/usr/bin/env perl
 
 # dumps_mon  aka  config_mon
 # This program is called whenever new telemetry dumps 
@@ -12,6 +11,8 @@
 #        see HEAD://proj/gads6/ops/Chex
 #  If descrepencies are found, e-mail is sent to sot_yellow_alert
 
+#:: This set of commands operates by using the running scripts file path to find the parent directory and add to path.
+#:: For the purposes of finding sibling perl libraries.
 use Cwd qw( abs_path );
 use File::Basename qw( dirname );
 use lib dirname(abs_path($0)); # updates @INC with path to executable
@@ -108,17 +109,24 @@ $acis_mail = "acisdude\@cfa.harvard.edu";
 #system "source pred_state.get";
 
 # *****************************************************************
-$verbose = 0;
+
+# Script Logic
+
+my $tracelog_dir = env_or_default('DUMP_TRACELOG_DIR', '/data/mta/Script/Dump/tracelog');
+my %tracelog_files_hash = pull_tl_files($tracelog_dir);
+
+foreach my $file (@{$tracelog_files_hash{pcad}}) {
+    print "$file\n";
+}
+
+my @ccdm_files = @{$tracelog_files_hashref->{ccdm}};
+my @pcad_files = @{$tracelog_files_hashref->{pcad}};
+my @acis_files = @{$tracelog_files_hashref->{acis}};
+my @iru_files  = @{$tracelog_files_hashref->{iru}};
+my @mups_files = @{$tracelog_files_hashref->{mups}};
 
 # Parse input arguments
 &parse_args;
-
-if ($verbose >= 2) {
-    print "$0 args:\n";
-    print "\tccdm infile:\t\t$cinfile\n";
-    print "\tpcad infile:\t\t$pinfile\n";
-    print "\tverbose:\t\t$verbose\n";
-}  
 
 my @ccdmfiles;
 my @pcadfiles;
@@ -2174,6 +2182,53 @@ if ( -s $poutfile ) {
 unlink $poutfile;
 # end **************************************************************
 
+# Subroutines and Functions
+
+sub env_or_default {
+    my ($name, $default) = @_;
+
+    if (exists $ENV{$name} && defined $ENV{$name} && $ENV{$name} ne '') {
+        return $ENV{$name};
+    }
+
+    return $default;
+}
+
+sub pull_tl_files {
+    my ($tracelog_dir) = @_;
+
+    my %patterns = (
+        ccdm => qr/CCDM/,
+        pcad => qr/PCAD/,
+        acis => qr/ACIS/,
+        iru  => qr/IRU/,
+        mups => qr/MUPS2/,
+    );
+
+    my %files;
+
+    find(
+        sub {
+            return unless -f $_;
+            return unless /\.tl$/;
+
+            my $path = $File::Find::name;
+
+            foreach my $key (keys %patterns) {
+                push @{$files{$key}}, $path
+                    if $_ =~ $patterns{$key};
+            }
+        },
+        $tracelog_dir
+    );
+
+    for my $key (keys %files) {
+        @{$files{$key}} = sort @{$files{$key}};
+    }
+
+    return \%files;
+}
+
 sub parse_args {
     my $cinfile_found = 0;
     my $pinfile_found = 0;
@@ -2288,14 +2343,6 @@ sub parse_args {
     exit (0);
 }
 
-#sub abs {
-  #if ( $_ >= 0 ) {
-    #return $_;
-  #}
-  #else {
-    #return ($_ * -1);
-  #}
-#}
     
 sub quat_to_euler {
     use Math::Trig;
