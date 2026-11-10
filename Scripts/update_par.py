@@ -17,6 +17,8 @@ from pathlib import Path
 #--- Globals
 #
 #: TODO Improve resource files for this script set. Topology changes will prevent reading this in current state.
+#: maybe consider having these two files in the resource directory,
+#: then on the OCC LAN we have an rsync command to periodically fetch this resource
 OP_LIMITS_DATABASE = Path("/data/mta/Script/MSID_limit/op_limits.db")
 ACIS_THERMAL_LIMITS = Path("/proj/web-cxc/htdocs/acis/Thermal/MSID_Limits.txt")
 
@@ -24,12 +26,22 @@ if os.getenv('DUMPS_PROCESS_ROOT') is not None:
     DUMPS_PROCESS_ROOT = Path(os.getenv('DUMPS_PROCESS_ROOT'))
 else:
     #: Running script is in a script subdirectory to the Dumps processing root.
-    #: Due to being in a Dumps_mon subdirectory.
     DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
 
-MAIN_DIR = "/data/mta/Script/Dumps/Dumps_mon"
-OUT_DIR = MAIN_DIR
-PAR_FILE_LIST = [f"{MAIN_DIR}/aca_check.par",f"{MAIN_DIR}/acis_check.par",f"{MAIN_DIR}/acis_temp.par"]
+SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'resource'
+DUMPS_MON_PARAMETER_DIR = DUMPS_PROCESS_ROOT / 'parameter'
+DUMPS_MON_PARAMETER_DIR.mkdir(exist_ok=True)
+
+if os.getenv("DUMP_TRACELOG_DIR") is not None:
+    DUMP_TRACELOG_DIR = Path(os.getenv("DUMP_TRACELOG_DIR"))
+else:
+    DUMP_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
+
+PAR_FILE_TEMPLATE_LIST = [
+    Path(f"{SCRIPT_RESOURCE_DIR}/aca_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_temp.template")
+]
 OVERWRITE_WITH_OP_LIMITS = True
 OVERWRITE_WITH_ACIS = True
 
