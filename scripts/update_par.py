@@ -17,14 +17,37 @@ import argparse
 #
 #--- Globals
 #
+#: TODO Improve resource files for this script set. Topology changes will prevent reading this in current state.
+#: maybe consider having these two files in the resource directory,
+#: then on the OCC LAN we have an rsync command to periodically fetch this resource
+OP_LIMITS_DATABASE = Path("/data/mta/Script/MSID_limit/op_limits.db")
+ACIS_THERMAL_LIMITS = Path("/proj/web-cxc/htdocs/acis/Thermal/MSID_Limits.txt")
 
-OP_LIMITS_DATABASE = "/data/mta/Script/MSID_limit/op_limits.db"
-ACIS_THERMAL_LIMITS = "/proj/web-cxc/htdocs/acis/Thermal/MSID_Limits.txt"
-MAIN_DIR = "/data/mta/Script/Dumps/Dumps_mon"
-OUT_DIR = MAIN_DIR
-PAR_FILE_LIST = [f"{MAIN_DIR}/aca_check.par",f"{MAIN_DIR}/acis_check.par",f"{MAIN_DIR}/acis_temp.par"]
+if os.getenv('DUMPS_PROCESS_ROOT') is not None:
+    DUMPS_PROCESS_ROOT = Path(os.getenv('DUMPS_PROCESS_ROOT'))
+else:
+    #: Running script is in a script subdirectory to the Dumps processing root.
+    DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
+
+SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'resource'
+DUMPS_MON_PARAMETER_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'parameter'
+DUMPS_MON_PARAMETER_DIR.mkdir(exist_ok=True)
+
+if os.getenv("DUMPS_TRACELOG_DIR") is not None:
+    DUMPS_TRACELOG_DIR = Path(os.getenv("DUMPS_TRACELOG_DIR"))
+else:
+    DUMPS_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
+
+PAR_FILE_TEMPLATE_LIST = [
+    Path(f"{SCRIPT_RESOURCE_DIR}/aca_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_temp.template")
+]
 OVERWRITE_WITH_OP_LIMITS = True
 OVERWRITE_WITH_ACIS = True
+
+_HEADER = "		Health & Safety 		Data Quality\nmnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions\n"
+
 def _grab_cxonow():
     return CxoTime()
 
@@ -34,7 +57,7 @@ def update_par():
     input: none, but read from list of .par files and op_limits_db to update .par files
     output: updated .par files (locally saved)
     """
-    for file in PAR_FILE_LIST:
+    for file in PAR_FILE_TEMPLATE_LIST:
         with open(file,'r') as f:
             raw_data =  f.readlines()
         #Maintain header as the same format of content
@@ -58,14 +81,11 @@ def update_par():
         if OVERWRITE_WITH_ACIS:
             par_dict = update_acis_ver_par(par_dict)
         
-        ofile = f"{OUT_DIR}/{os.path.basename(file)}"
-        with open(ofile,'w') as f:
-            for line in header:
-                f.write(line)
-            for k,v in par_dict.items():
-                line = f"{k}    {'    '.join(v[0])}\n"
-                f.write(line)
-
+        content = _HEADER
+        for k,v in par_dict.items():
+            content += f"{k}    {'    '.join(v[0])}\n"
+        
+        writer.write(file.with_suffix('.par').name, content)
 
 def update_par_file_data(par_dict):
     """
