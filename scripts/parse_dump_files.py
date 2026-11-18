@@ -27,30 +27,31 @@ import argparse
 #
 #--- Global Directory Pathing
 #
-DUMP_SOURCE_DIR = Path(os.getenv("DUMP_SOURCE_DIR") or "/dsops/critical/GOT/input")
-#: Warning for nonexistent DUMP_SOURCE_DIR
-if not DUMP_SOURCE_DIR.is_dir():
-    raise FileNotFoundError(f"DUMP_SOURCE_DIR: {DUMP_SOURCE_DIR} not found.\nEnsure script runs on machine able to see DSOPS (c3po-v, r2d2-v, colossus-v).")
+DUMPS_SOURCE_DIR = Path(os.getenv("DUMPS_SOURCE_DIR") or "/dsops/critical/GOT/input")
+#: Warning for nonexistent DUMPS_SOURCE_DIR
+if not DUMPS_SOURCE_DIR.is_dir():
+    raise FileNotFoundError(f"DUMPS_SOURCE_DIR: {DUMPS_SOURCE_DIR} not found.\nEnsure script runs on machine able to see DSOPS (c3po-v, r2d2-v, colossus-v).")
 
-if os.getenv('SCRIPT_ROOT') is not None:
-    SCRIPT_ROOT = Path(os.getenv('SCRIPT_ROOT'))
+if os.getenv('DUMPS_PROCESS_ROOT') is not None:
+    DUMPS_PROCESS_ROOT = Path(os.getenv('DUMPS_PROCESS_ROOT'))
 else:
-    SCRIPT_ROOT = Path(__file__).resolve().parent
+    #: Running script is in a script subdirectory to the Dumps processing root.
+    DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
 
-SCRIPT_STATE_DIR = SCRIPT_ROOT / 'state'
-SCRIPT_RESOURCE_DIR = SCRIPT_ROOT / 'resource'
+SCRIPT_STATE_DIR = DUMPS_PROCESS_ROOT / 'scripts' / 'state'
+SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'scripts' / 'resource'
 
-if os.getenv("DUMP_DATA_DIR") is not None:
-    DUMP_DATA_DIR = Path(os.getenv("DUMP_DATA_DIR"))
+if os.getenv("DUMPS_DATA_DIR") is not None:
+    DUMPS_DATA_DIR = Path(os.getenv("DUMPS_DATA_DIR"))
 else:
-    DUMP_DATA_DIR = SCRIPT_ROOT / 'data'
-DUMP_DATA_DIR.mkdir(exist_ok=True)
+    DUMPS_DATA_DIR = DUMPS_PROCESS_ROOT / 'data'
+DUMPS_DATA_DIR.mkdir(exist_ok=True)
 
-if os.getenv("DUMP_TRACELOG_DIR") is not None:
-    DUMP_TRACELOG_DIR = Path(os.getenv("DUMP_TRACELOG_DIR"))
+if os.getenv("DUMPS_TRACELOG_DIR") is not None:
+    DUMPS_TRACELOG_DIR = Path(os.getenv("DUMPS_TRACELOG_DIR"))
 else:
-    DUMP_TRACELOG_DIR = SCRIPT_ROOT / 'tracelog'
-DUMP_TRACELOG_DIR.mkdir(exist_ok=True)
+    DUMPS_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
+DUMPS_TRACELOG_DIR.mkdir(exist_ok=True)
 
 def grab_now():
     return datetime.now()
@@ -87,10 +88,10 @@ def _filename_2_time_interval(file):
 
 def determine_unprocessed_dumps(processed_dumps : list) -> list:
     """
-    Scan through the DUMP_SOURCE_DIR directory and state/processed_dumps.json data files
+    Scan through the DUMPS_SOURCE_DIR directory and state/processed_dumps.json data files
     to determine which Dump files need to be processed in this run
     """
-    all_dump_files = glob(f"{DUMP_SOURCE_DIR}/*Dump_EM*.gz")
+    all_dump_files = glob(f"{DUMPS_SOURCE_DIR}/*Dump_EM*.gz")
 
     all_dump_files_set = set(all_dump_files)
     processed_dumps_set = set(processed_dumps)
@@ -113,9 +114,9 @@ def unzip(gzipped_files: list) -> list:
     """
     unzipped_files = []
     for file in gzipped_files:
-        outfile = DUMP_DATA_DIR / os.path.basename(file).replace('.gz','')
+        outfile = DUMPS_DATA_DIR / os.path.basename(file).replace('.gz','')
         try:
-            subprocess_wrapper(f"cd {DUMP_DATA_DIR}; gzip -dc {file} > {outfile}")
+            subprocess_wrapper(f"cd {DUMPS_DATA_DIR}; gzip -dc {file} > {outfile}")
             unzipped_files.append(outfile)
         except subprocess.CalledProcessError as e:
             #: Print traceback then continue processing
@@ -129,16 +130,16 @@ def run_acorn(dump_files):
     """
     now = grab_now()
     #: Initial setup of command
-    cmd = f"cd {DUMP_DATA_DIR}; source /home/ascds/.ascrc; "
+    cmd = f"cd {DUMPS_DATA_DIR}; source /home/ascds/.ascrc; "
     #: Individual acorn runs per dump files
     for file in dump_files:
-        #: Output is CWD of process run, which is set to DUMP_DATA_DIR above.
+        #: Output is CWD of process run, which is set to DUMPS_DATA_DIR above.
         cmd += f"acorn -nOC {SCRIPT_RESOURCE_DIR}/msids.list -f {file}; "
     try:
         subprocess_wrapper(cmd)
     except subprocess.CalledProcessError as e:
         e.add_note(f"Acorn parsing failed at {now.isoformat()}.")
-        e.add_note(f"Check {DUMP_DATA_DIR}/systemlog.")
+        e.add_note(f"Check {DUMPS_DATA_DIR}/systemlog.")
         raise e
 
 def parse_dump_files(verbose : bool):
@@ -179,9 +180,9 @@ def parse_dump_files(verbose : bool):
     for _file in unzipped_dump_files:
         Path(_file).unlink(missing_ok=True)
     #: Move the tracelog files
-    tl_files = glob(f"{DUMP_DATA_DIR}/*.tl")
+    tl_files = glob(f"{DUMPS_DATA_DIR}/*.tl")
     for _file in tl_files:
-        shutil.move(_file, DUMP_TRACELOG_DIR)
+        shutil.move(_file, DUMPS_TRACELOG_DIR)
     #: Update the processed list
     os.replace(SCRIPT_STATE_DIR / "processed_dumps.json", SCRIPT_STATE_DIR / "processed_dumps.json~")
     latest_processed = processed_dumps + unprocessed_dumps
