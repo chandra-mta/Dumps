@@ -67,13 +67,18 @@ $ioutfile = $report_dir."/dumps_mon_iru.out"; #temp out for iru violations
 $doutfile = $report_dir."/dumps_mon_dea.out"; #temp out for dea violations
 $poutfile = $report_dir."/dumps_mon_pline.out"; #temp out for pline violations
 
-#  hack to get name of dump file(s) processed
-$dumpname = "/data/mta/Script/Dumps/Dumps_mon/IN/xtmpnew";
 
 #Email Sending
-$tester = "william.aaron\@cfa.harvard.edu";
-$mta_mail = "mtadude\@cfa.harvard.edu";
-$acis_mail = "acisdude\@cfa.harvard.edu";
+$EMAIL_ENABLED = env_or_default('EMAIL_ENABLED', '0');
+$ALERT_SUBJECT = env_or_default('ALERT_SUBJECT', 'config_mon');
+
+if ($EMAIL_ENABLED) {
+    $mta_mail  = required_env('MTA_MAIL');
+    $acis_mail = required_env('ACIS_MAIL');
+} else {
+    $mta_mail  = '';
+    $acis_mail = '';
+}
 # ************** End Program Parameters ***************************
  
 #  get most recent predicted state file from HEAD network
@@ -1589,15 +1594,12 @@ my $lockfile = "./.dumps_mon_lock";
 my $safefile = "/home/mta/Snap/.scs107alert";  # lock created by snapshot
 if ( -s $outfile ) {
   if ( -s $lockfile || -s $safefile ) {  # already sent, don't send again
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$outfile";
     `date >> $lockfile`;
@@ -1611,18 +1613,12 @@ if ( -s $outfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    ###test 12/06/11open MAIL, "|mailx -s config_mon sot_lead\@head.cfa.harvard.edu brad\@head.cfa.harvard.edu jnichols\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|mail brad\@head.cfa.harvard.edu swolk\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$outfile";
 
@@ -1653,16 +1649,12 @@ unlink $outfile;
 $lockfile = "./.dumps_mon_aca_lock";
 if ( -s $acafile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu acisdude\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$acafile";
     `date >> $lockfile`;
@@ -1675,17 +1667,12 @@ if ( -s $acafile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    #open MAIL, "|mail brad\@head.cfa.harvard.edu swolk\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$acafile";
 
@@ -1711,17 +1698,13 @@ unlink $acafile;
 $lockfile = "./.dumps_mon_acis_lock";
 if ( -s $aoutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu plucinsk\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail $acis_mail";
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail,
+    $acis_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$aoutfile";
     `date >> $lockfile`;
@@ -1735,18 +1718,13 @@ if ( -s $aoutfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail $acis_mail";
-    #open MAIL, "|mail brad\@head.cfa.harvard.edu swolk\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail,
+    $acis_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$aoutfile";
 
@@ -1776,17 +1754,12 @@ unlink $aoutfile;
 $lockfile = "./.dumps_mon_acis_temp_lock";
 if ( -s $atoutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu plucinsk\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu 6172573986\@mobile.mycingular.com 6177216763\@vtext.com";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$atoutfile";
     `date >> $lockfile`;
@@ -1800,16 +1773,12 @@ if ( -s $atoutfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu 6172573986\@mobile.mycingular.com 6177216763\@vtext.com";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$atoutfile";
 
@@ -1839,16 +1808,12 @@ unlink $atoutfile;
 $lockfile = "./.dumps_mon_deatemp_lock";
 if ( -s $doutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu plucinsk\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$doutfile";
     `date >> $lockfile`;
@@ -1862,18 +1827,12 @@ if ( -s $doutfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|mail brad\@head.cfa.harvard.edu swolk\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$doutfile";
 
@@ -1902,15 +1861,12 @@ unlink $doutfile;
 $lockfile = "./.dumps_mon_iru_lock";
 if ( -s $ioutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$ioutfile";
     `date >> $lockfile`;
@@ -1924,17 +1880,12 @@ if ( -s $ioutfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|mailx -s config_mon sot_red_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$ioutfile";
 
@@ -2090,14 +2041,12 @@ unlink $ioutfile;
 $lockfile = "./.dumps_mon_mups_lock";
 if ( -s $poutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    print MAIL "config_mon_2.6 \n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT \n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$poutfile";
     `date >> $lockfile`;
@@ -2111,16 +2060,12 @@ if ( -s $poutfile ) {
     close MAIL;
     close LOCK;
   } else {  # first violation, tell someone
-    open MAIL, "|mailx -s config_mon_2.6 $mta_mail";
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    print MAIL "config_mon_2.6\n\n"; # current version
-    if ( -s $dumpname ) {
-      open DNAME, "<$dumpname";
-      while (<DNAME>) {
-        print MAIL $_;
-      }
-    }
+    open_alert_mail(
+    $ALERT_SUBJECT,
+    $mta_mail
+    );
+    print MAIL "$ALERT_SUBJECT\n\n"; # current version
+    
     print MAIL "\n";
     open REPORT, "<$poutfile";
 
@@ -2381,6 +2326,22 @@ sub mark_processed {
             processed_epoch => time()
         };
     }
+}
+sub open_alert_mail {
+    my ($subject, @recipients) = @_;
+
+    my $cmd;
+
+    if ($EMAIL_ENABLED) {
+        $cmd = "mailx -s '$subject' @recipients";
+    } else {
+        $cmd = "cat >/dev/null";
+    }
+
+    open(MAIL, "|$cmd")
+        or die "Cannot open mail pipe: $!";
+
+    return;
 }
     
 sub quat_to_euler {
