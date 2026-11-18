@@ -49,16 +49,23 @@ $pline04_lim=42.5;  #lower limit F
 #  predicted state file
 #$pred_file = "/home/brad/Dumps/Dumps_mon/pred_state.txt";
 
+$process_root = required_env('DUMPS_PROCESS_ROOT');
+$report_dir = env_or_default('DUMPS_REPORT_DIR', $process_root.'/reports');
+#: Single alert which depends on the Snapshot scs107 alerting status.
+my $safefile = env_or_default('SNAPSHOT_SAFEFILE', "/data/mta4/www/Snapshot/.scs107alert");  # lock created by snapshot
+
+unless (-d $report_dir) {
+    mkdir $report_dir or die "Failed to create $report_dir: $!";
+}
+
 #  output file (temporary file, if non empty will be e-mailed)
-$outfile = "dumps_mon.out";
-$aoutfile = "dumps_mon_acis.out"; #temp out for acis violations
-$acafile = "dumps_mon_aca.out"; #temp out for acis violations
-$atoutfile = "dumps_mon_acis_temp.out"; #temp out for acis violations
-$ioutfile = "dumps_mon_iru.out"; #temp out for iru violations
-#$eoutfile = "dumps_mon_eph.out"; #temp out for eph temp violations
-#$evoutfile = "dumps_mon_ephv.out"; #temp out for eph voltage violations
-$doutfile = "dumps_mon_dea.out"; #temp out for dea violations
-$poutfile = "dumps_mon_pline.out"; #temp out for pline violations
+$outfile = $report_dir."/dumps_mon.out";
+$aoutfile = $report_dir."/dumps_mon_acis.out"; #temp out for acis violations
+$acafile = $report_dir."/dumps_mon_aca.out"; #temp out for acis violations
+$atoutfile = $report_dir."/dumps_mon_acis_temp.out"; #temp out for acis violations
+$ioutfile = $report_dir."/dumps_mon_iru.out"; #temp out for iru violations
+$doutfile = $report_dir."/dumps_mon_dea.out"; #temp out for dea violations
+$poutfile = $report_dir."/dumps_mon_pline.out"; #temp out for pline violations
 
 #  hack to get name of dump file(s) processed
 $dumpname = "/data/mta/Script/Dumps/Dumps_mon/IN/xtmpnew";
@@ -2140,6 +2147,8 @@ if ( -s $poutfile ) {
 unlink $poutfile;
 # end **************************************************************
 
+# Subroutines and Functions
+
 sub parse_args {
     my $cinfile_found = 0;
     my $pinfile_found = 0;
@@ -2254,14 +2263,25 @@ sub parse_args {
     exit (0);
 }
 
-#sub abs {
-  #if ( $_ >= 0 ) {
-    #return $_;
-  #}
-  #else {
-    #return ($_ * -1);
-  #}
-#}
+sub env_or_default {
+    my ($name, $default) = @_;
+
+    if (exists $ENV{$name} && defined $ENV{$name} && $ENV{$name} ne '') {
+        return $ENV{$name};
+    }
+
+    return $default;
+}
+
+sub required_env {
+    my ($name) = @_;
+
+    die "Required environment variable '$name' is not set\n"
+        unless exists $ENV{$name}
+            && defined $ENV{$name};
+
+    return $ENV{$name};
+}
     
 sub quat_to_euler {
     use Math::Trig;
