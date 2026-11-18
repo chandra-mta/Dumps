@@ -1,0 +1,5 @@
+		Health & Safety 		Data Quality
+mnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions
+1PDEAAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp A
+1PDEABT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp B
+1PIN1AT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC Temp 1A
