@@ -5,11 +5,16 @@ __pycache__/
 _example/
 deploy-exclude.txt
 version.conf
+install.sh
 
-# Exclusions for Script Root
+# Exclusions for installation data files
+# These contain intermediary files, configs, and processing state information which isn't source code
 tracelog/
 data/
 state/
+parameter/
+instance/
+reports/
 
 
 # Exclusions for Legacy Filepaths used for Dumps_Mon
