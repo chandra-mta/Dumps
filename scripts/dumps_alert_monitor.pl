@@ -963,98 +963,6 @@ for ( $i=$stopi; $i<$#itimearr; $i+=500 ) {  # check every 200th data point
 } # for #itimearr
 
 close REPORT;
-#close ITESTOUT; #debugmode
-
-# ******************************************************************
-# ephin checks
-#open REPORT, "> $eoutfile";
-#open REPORTV, "> $evoutfile";
-#my $tephinviol = 0;
-#my $tephin102viol = 0;
-#my $eph27vviol = 0;
-#my $eboxviol = 0;
-#my $last27s=0;
-#my $trectime = 120; #set rectime to 2 min for this one
-#my $trectime = 240; # 120 not enough to avoid bad data 
-#$jj=0;
-#for ( $i=0; $i<$#itimearr; $i+=2 ) {  # check every 200th data point
-                                            # or it's really slow
-  #print "EPH $i $#itimearr $mnframarr[$i] $eph27sarr[$i] $eph27varr[$i]\n"; # debuggggg
-  # send another alert if temp exceeds 120 F
-  #if ( ($tephinarr[$i]) > 120.00 && $tephin102viol == 0) {
-  #  $tephin102viol=1;
-  #  close REPORT;  #start report over
-  #  open REPORT, "> $eoutfile";
-    #if (! -s "./.dumps_mon_eph102_lock") {
-    #  `cp .dumps_mon_eph_lock .dumps_mon_eph102_lock`;
-    #  unlink ".dumps_mon_eph_lock"; # force rearming
-    #} commented out by LP Sep 27, ephin shutdown
-  #}
-    
-  #if ( ($tephinarr[$i]) > $tephin_max) {
-  #  $tephin_max = $tephinarr[$i];
-  #  $tephinmaxtime = $itimearr[$i];
-  #  $tephinmaxpos = $tephinarr[$i];
-  #}
-  #if ( ($tephinarr[$i]) > $tephin_lim && $tephinviol == 0) {
-  #  $tephinviol = 1;
-  #  $tephintmptime = $itimearr[$i];
-  #  $tephintmppos = $tephinarr[$i];
-  #} elsif ( ($tephinarr[$i]) < $tephin_lim && $tephinviol == 1) {
-  #  $tephinviol = 0;
-  #  if ( convert_time($itimearr[$i]) - convert_time($tephintmptime) > $trectime ) {
-  #    printf REPORT " TEPHIN    Violation at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $tephintmptime, $tephintmppos, $tephin_lim;
-  #    printf REPORT " TEPHIN    Maximum Violation at %19s Value: %7.2f deg C\n", $tephinmaxtime, $tephinmaxpos;
-  #    printf REPORT " TEPHIN    Recovery at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $itimearr[$i], $tephinarr[$i], $tephin_lim;
-  #  }
-  #} # if ( ($tephinarr[$i]) > $tephin_lim && $tephinviol == 0) {
-
-  #if ( ($eboxarr[$i]) > $ebox_lim && $eboxviol == 0) {
-  #  $eboxviol = 1;
-  #  $eboxtmptime = $itimearr[$i];
-  #  $eboxtmppos = $eboxarr[$i];
-  #} elsif ( ($eboxarr[$i]) < $ebox_lim && $eboxviol == 1) {
-  #  $eboxviol = 0;
-  #  if ( convert_time($itimearr[$i]) - convert_time($eboxtmptime) > $trectime ) {
-  #    printf REPORT " EPHIN EBOX (5EHSE300)   Violation at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $eboxtmptime, $eboxtmppos, $ebox_lim;
-  #    printf REPORT " EPHIN EBOX (5EHSE300)   Recovery at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $itimearr[$i], $eboxarr[$i], $ebox_lim;
-  #  }
-  #} # if ( ($eboxarr[$i]) > $ebox_lim && $eboxviol == 0) {
-
-  #if ( $mnframarr[$i] > 20 && $mnframarr[$i] < 108 && $eph27sarr[$i] == $last27s && ($eph27sarr[$i]+1) % 2 == 1) {  # only check if we know eph27v shows voltage
-    #if ( ($mnframarr[$i]) > 4 && $eph27sarr[$i] != $last27s && ($eph27sarr[$i]+1) % 2 == 0 && $eph27varr[$i] < $eph27v_lim && $eph27vviol == 0) {
-    ##if ( $eph27varr[$i] < $eph27v_lim && $eph27vviol == 0) {
-    #  $eph27vviol = 1;
-    #  $eph27vtmptime = $itimearr[$i];
-    #  $eph27vtmppos = $eph27varr[$i];
-    #} elsif ( ($eph27varr[$i]) > $eph27v_lim && $eph27vviol == 1) {
-    #  $eph27vviol = 0;
-    #  if ( convert_time($itimearr[$i]) - convert_time($eph27vtmptime) > $trectime ) {
-    #    printf REPORTV " EPHIN HKP27V  Violation at %19s Value: %7.2f Limit: \> %7.2f V\n", $eph27vtmptime, $eph27vtmppos, $eph27v_lim;
-    #    printf REPORTV " EPHIN HKP27V  Recovery at %19s Value: %7.2f Limit: \> %7.2f V\n", $itimearr[$i], $eph27varr[$i], $eph27v_lim;
-    #  }
-    #} # if ( $eph27varr[$i] < $eph27v_lim && $eph27vviol == 0) {
-  #} #if ( ($mnframarr[$i]) > 4 && $eph27sarr[$i] != $last27s && ($eph27sarr[$i]+1) % 2 == 0) {  # only check if we know eph27v shows voltage
-  #$last27s=$eph27sarr[$i];
-  #$jj+=2;  # scheme to look at a few frames in order then skip a bunch
-  #if ($jj == 16) { $i+=120; }
-  #if ($jj == 32) {
-  #  $i+=1387;
-  #  $jj=0;
-  # } # if ($jj == 32) {
-#} # for ( $i=0; $i<$#itimearr; $i++ ) {
-#if ( $tephinviol == 1 ) {
-      #printf REPORT " TEPHIN    Violation at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $tephintmptime, $tephintmppos, $tephin_lim;
-      #printf REPORT " TEPHIN    Maximum Violation at %19s Value: %7.2f deg C\n", $tephinmaxtime, $tephinmaxpos;
-#}
-#if ( $eboxviol == 1 ) {
-      #printf REPORT " EPHIN EBOX (5EHSE300)    Violation at %19s Value: %7.2f Limit: \< %7.2f deg C\n", $eboxtmptime, $eboxtmppos, $ebox_lim;
-#}
-#if ( $eph27vviol == 1 ) {
-      #printf REPORTV " EPHIN HKP27V  Violation at %19s Value: %7.2f Limit: \> %7.2f V\n", $eph27vtmptime, $eph27vtmppos, $eph27v_lim;
-#}
-#close REPORT;
-#close REPORTV;
 
 # ******************************************************************
 # mups pline checks
@@ -1476,8 +1384,6 @@ if ( -s $outfile ) {
       print LOCK $_;
     }
     print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_lead brad jnichols\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
     print MAIL "This message sent to mta mail.\n";
     close MAIL;
     close LOCK;
@@ -1582,7 +1488,6 @@ if ( -s $aoutfile ) {
       print LOCK $_;
     }
     print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
     print MAIL "This message sent to mta mail and acis mail.\n";
     close MAIL;
     close LOCK;
@@ -1636,7 +1541,6 @@ if ( -s $atoutfile ) {
       print LOCK $_;
     }
     print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
     print MAIL "This message sent to mta mail\n";
     close MAIL;
     close LOCK;
@@ -1690,7 +1594,6 @@ if ( -s $doutfile ) {
       print LOCK $_;
     }
     print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
     print MAIL "This message sent to mta mail.\n";
     close MAIL;
     close LOCK;
@@ -1742,11 +1645,7 @@ if ( -s $ioutfile ) {
       print MAIL $_;
       print LOCK $_;
     }
-    #print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
-    #print MAIL "This message sent to sot_red_alert\n";
     print MAIL "This message sent to mta mail.\n";
-    #print MAIL "TEST_MODE TEST_MODE TEST_MODE\n";
     close MAIL;
     close LOCK;
   }  #endelse
@@ -1755,131 +1654,6 @@ if ( -s $ioutfile ) {
   unlink $lockfile;
 }
 unlink $ioutfile;
-# *******************************************************************
-#  E-mail ephin violations, if any
-# *******************************************************************
-#$lockfile = "./.dumps_mon_eph_lock";
-#if ( -s $eoutfile ) {
- # if ( -s $lockfile ) {  # already sent, don't send again
-  #  open MAIL, "|mailx -s config_mon_2.6 swolk\@cfa.harvard.edu msobolewska\@cfa.harvard.edu";
-   # #open MAIL, "|more"; #debug
-   # print MAIL "config_mon_2.6 \n\n"; # current version
-   # if ( -s $dumpname ) {
-   #   open DNAME, "<$dumpname";
-   #   while (<DNAME>) {
-   #     print MAIL $_;
-   #   }
-   # }
-   # print MAIL "\n";
-   # open REPORT, "<$eoutfile";
-   # `date >> $lockfile`;
-   # open LOCK, ">> $lockfile";
-    
-   # while (<REPORT>) {
-   #   print MAIL $_;
-   #   print LOCK $_;
-   # }
-   # print MAIL "This message sent to swolk malgosia.\n";
-   # close MAIL;
-   # close LOCK;
-  #} else {  # first violation, tell someone
-    #open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_2.6 swolk\@cfa.harvard.edu msobolewska\@cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon sot_red_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    #print MAIL "config_mon_2.6\n\n"; # current version
-    #if ( -s $dumpname ) {
-    #  open DNAME, "<$dumpname";
-    #  while (<DNAME>) {
-    #    print MAIL $_;
-    #  }
-    #}
-    #print MAIL "\n";
-    #open REPORT, "<$eoutfile";
-
-    #`date > $lockfile`;
-    #open LOCK, ">> $lockfile";
-
-    #while (<REPORT>) {
-    #  print MAIL $_;
-    #  print LOCK $_;
-    #}
-    #print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
-    #print MAIL "This message sent to sot_red_alert\n";
-    #print MAIL "This message sent to swolk malgosia.\n";  #turnbackon
-    #print MAIL "This message sent to sot_lead\n";
-    #print MAIL "TEST_MODE TEST_MODE TEST_MODE\n";  #turnbackon
-    #close MAIL;
-    #close LOCK;
-  #}  #endelse
-
-#} else { # no violation, rearm alert
-  #unlink $lockfile;
-  #unlink "./.dumps_mon_eph102_lock";
-#}
-#unlink $eoutfile;
-#$lockfile = "./.dumps_mon_ephv_lock";
-#if ( -s $evoutfile ) {
-  #if ( -s $lockfile ) {  # already sent, don't send again
-    #open MAIL, "|mailx -s config_mon_2.6 swolk\@cfa.harvard.edu msobolewska\@cfa.harvard.edu";
-    #open MAIL, "|more"; #debug
-    #print MAIL "config_mon_2.6 \n\n"; # current version
-    #if ( -s $dumpname ) {
-      #open DNAME, "<$dumpname";
-      #while (<DNAME>) {
-      #  print MAIL $_;
-      #}
-    #}
-    #print MAIL "\n";
-    #open REPORT, "<$evoutfile";
-    #`date >> $lockfile`;
-    #open LOCK, ">> $lockfile";
-    
-    #while (<REPORT>) {
-    #  print MAIL $_;
-    #  print LOCK $_;
-    #}
-    #print MAIL "This message sent to swolk malgosia.\n";
-    #close MAIL;
-    #close LOCK;
-  #} else {  # first violation, tell someone
-    ##open MAIL, "|mailx -s config_mon_test swolk brad\@head.cfa.harvard.edu swolk\@head.cfa.harvard.edu";
-    #open MAIL, "|mailx -s config_mon_2.6 swolk\@cfa.harvard.edu msobolewska\@cfa.harvard.edu";
-    ##open MAIL, "|mailx -s config_mon sot_yellow_alert\@head.cfa.harvard.edu";
-    ##open MAIL, "|more"; #debug
-    #print MAIL "config_mon_2.6 \n\n"; # current version
-    #if ( -s $dumpname ) {
-     # open DNAME, "<$dumpname";
-      #while (<DNAME>) {
-        #print MAIL $_;
-      #}
-    #}
-    #print MAIL "\n";
-    #open REPORT, "<$evoutfile";
-
-    #`date > $lockfile`;
-    #open LOCK, ">> $lockfile";
-
-    #while (<REPORT>) {
-      #print MAIL $_;
-      #print LOCK $_;
-    #}
-    ##print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    ##print MAIL "This message sent to sot_yellow_alert\n";
-    #print MAIL "This message sent to swolk malgosia.\n";
-    ##print MAIL "This message sent to brad swolk1\n";
-    ##print MAIL "This message sent to sot_lead fot emartin\n";
-    ##print MAIL "TEST_MODE TEST_MODE TEST_MODE\n";
-    #close MAIL;
-   # close LOCK;
-  #}  #endelse
-
-#} else { # no violation, rearm alert
- # unlink $lockfile;
-#}
-#unlink $evoutfile;
 
 # *******************************************************************
 #  E-mail pline violations, if any
@@ -1922,12 +1696,7 @@ if ( -s $poutfile ) {
       print MAIL $_;
       print LOCK $_;
     }
-    #print MAIL "Future violations will not be reported until rearmed by MTA.\n";
-    #print MAIL "This message sent to sot_yellow_alert\n";
-    #print MAIL "This message sent to sot_red_alert\n";
     print MAIL "This message sent to mta mail.\n";  #turnbackon
-    #print MAIL "This message sent to sot_lead\n";
-    #print MAIL "TEST_MODE TEST_MODE TEST_MODE\n";  #turnbackon
     close MAIL;
     close LOCK;
   }  #endelse
@@ -2075,7 +1844,7 @@ sub open_alert_mail {
 
     return;
 }
-    
+
 sub quat_to_euler {
     use Math::Trig;
     my @quat = @_;
