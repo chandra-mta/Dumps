@@ -81,24 +81,24 @@ $acis_mail = "acisdude\@cfa.harvard.edu";
 #system "source pred_state.get";
 
 # *****************************************************************
-$verbose = 0;
 
-# Parse input arguments
-&parse_args;
+# Script Logic
+$parameter_dir = $process_root."/scripts/parameter";
+my $tracelog_dir = env_or_default('DUMPS_TRACELOG_DIR', $process_root.'/tracelog');
+my $state_file = "$process_root/scripts/state/processed_tracelogs.json";
+my $state_ref = load_processing_state($state_file);
+my $tracelog_files_hashref = pull_tl_files($tracelog_dir, $state_ref);
 
-if ($verbose >= 2) {
-    print "$0 args:\n";
-    print "\tccdm infile:\t\t$cinfile\n";
-    print "\tpcad infile:\t\t$pinfile\n";
-    print "\tverbose:\t\t$verbose\n";
-}  
+my @ccdmfiles = @{$tracelog_files_hashref->{ccdm}};
+my @pcadfiles = @{$tracelog_files_hashref->{pcad}};
+my @acisfiles = @{$tracelog_files_hashref->{acis}};
+my @irufiles  = @{$tracelog_files_hashref->{iru}};
+my @mupsfiles = @{$tracelog_files_hashref->{mups}};
 
-my @ccdmfiles;
-my @pcadfiles;
-my @acisfiles;
-my @irufiles;
+
+# deatfiles ACIS DEA values. Input data file not updated since 2015. Consult again soon but leave broken for now.
 my @deatfiles;
-my @mupsfiles;
+
 my $pcadfile;
 my $ccdmfile;
 my $acisfile;
@@ -2145,6 +2145,22 @@ if ( -s $poutfile ) {
   unlink $lockfile;
 }
 unlink $poutfile;
+
+# Finished script alerting on dumps violations. now record processed tracelog files.
+mark_processed(
+    $state_ref,
+    @ccdmfiles,
+    @pcadfiles,
+    @acisfiles,
+    @irufiles,
+    @mupsfiles
+);
+
+save_processing_state(
+    $state_file,
+    $state_ref
+);
+
 # end **************************************************************
 
 # Subroutines and Functions
@@ -2281,6 +2297,90 @@ sub required_env {
             && defined $ENV{$name};
 
     return $ENV{$name};
+}
+
+sub pull_tl_files {
+    my ($tracelog_dir, $state_ref) = @_;
+
+    my %patterns = (
+        ccdm => qr/CCDM/,
+        pcad => qr/PCAD/,
+        acis => qr/ACIS/,
+        iru  => qr/IRU/,
+        mups => qr/MUPS2/,
+    );
+
+    my %files = (
+      ccdm => [],
+      pcad => [],
+      acis => [],
+      iru  => [],
+      mups => [],
+  );
+
+    find(
+        sub {
+
+            return unless -f $_;
+            return unless /\.tl$/;
+
+            my $path = $File::Find::name;
+
+            # Skip already processed files
+            return if exists
+                $state_ref->{processed_files}{$path};
+
+            foreach my $key (keys %patterns) {
+                push @{$files{$key}}, $path
+                    if $_ =~ $patterns{$key};
+            }
+        },
+        $tracelog_dir
+    );
+
+    for my $key (keys %files) {
+        @{$files{$key}} = sort @{$files{$key}};
+    }
+
+    return \%files;
+}
+
+sub load_processing_state {
+    my ($state_file) = @_;
+
+    return { processed_files => {} }
+        unless -e $state_file;
+
+    open(my $fh, '<', $state_file)
+        or die "Unable to open $state_file: $!";
+
+    local $/;
+    my $json = <$fh>;
+    close($fh);
+
+    return decode_json($json);
+}
+
+sub save_processing_state {
+    my ($state_file, $state_ref) = @_;
+
+    open(my $fh, '>', $state_file)
+        or die "Unable to write $state_file: $!";
+
+    print $fh JSON->new->pretty->encode($state_ref);
+
+    close($fh);
+}
+
+sub mark_processed {
+    my ($state_ref, @files) = @_;
+
+    foreach my $file (@files) {
+
+        $state_ref->{processed_files}{$file} = {
+            processed_epoch => time()
+        };
+    }
 }
     
 sub quat_to_euler {
