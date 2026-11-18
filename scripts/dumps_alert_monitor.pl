@@ -1435,24 +1435,6 @@ close REPORT;
 # *******************************************************************
 #  E-mail violations, if any
 # *******************************************************************
-if ( -s "testfile.out" ) {
-  open MAIL, "|mailx -s config_mon_2.6 $tester";
-  print MAIL "config_mon_2.6 \n\n"; # current version
-  if ( -s $dumpname ) {
-    open DNAME, "<$dumpname";
-    while (<DNAME>) {
-      print MAIL $_;
-    }
-  }
-  print MAIL "\n";
-  open REPORT, "< testfile.out";
-  
-  while (<REPORT>) {
-    print MAIL $_;
-  }
-  print MAIL "This message sent to tester.\n";
-  close MAIL;
-}
 
 #  E-mail violations, if any
 my $lockfile = $report_dir."/.dumps_mon.lock";
