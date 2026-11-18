@@ -1,0 +1,57 @@
+		Health & Safety 		Data Quality
+mnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions
+1CBAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Camera Body Temp A
+1CBBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Camera Body Temp B
+1CRAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Cold Radiator Temp A
+1DACTBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DA Collimator-Top Temp. B
+1DEAMZT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA -Z Panel Temp (RT830)
+1DPAMYT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA -Y Panel Temp (RT810)
+1DPAMZT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA -Z Panel Temp (RT830)
+1PDEAAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp A
+1PDEABT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC DEA Power Supply Temp B
+1PIN1AT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #PSMC Temp 1A
+1SSMYT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Suppt Structure -Y Panel Temp (RT811)
+1SSPYT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Suppt Structure +Y Panel Temp (RT810)
+1WRAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Warm Radiator Temp A
+1WRBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Warm Radiator Temp B
+1DAHACU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Htr Current A
+1DAHBCU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Htr Current B
+1DAHBVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Htr Voltage B
+1DAHHBVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DA Housing Htr +28V Input B
+1DAHAVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Htr Voltage A
+1DAHHAVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DA Housing Htr +28V Input A
+1DE28AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +28V Input A
+1DE28BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +28V Input B
+1DEN0AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA -6V Voltage A
+1DEN0BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA -6V Voltage B
+1DEN1AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA -15V Voltage A
+1DEN1BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA -15V Voltage B
+1DEP0AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +6V Voltage A
+1DEP0BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +6V Voltage B
+1DEP1AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +15V Analog A
+1DEP1BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +15V Analog B
+1DEP2AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +24V Analog A
+1DEP2BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +24V Analog B
+1DEP3AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +28V Analog A
+1DEP3BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA +28V Analog B
+1DP28AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA +28V Input A
+1DP28BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA +28V Input B
+1DPICACU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA Input Current A
+1DPICBCU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA Input Current B
+1DPP0AVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA +5V Analog A
+1DPP0BVO    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DPA +5V Analog B
+1MAHCAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Door Close Actuator Temp A
+1MAHCBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Door Close Actuator Temp B
+1MAHOAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Door Open Actuator Temp A
+1MAHOBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Door Open Actuator Temp B
+1OAHAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Open Actuator Temp Cold Side A
+1OAHBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Open Actuator Housing Temp Side B
+1VAHCAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #TEMPERATURE
+1VAHCBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #TEMPERATURE
+1VAHOAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #TEMPERATURE
+1VAHOBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #TEMPERATURE
+1DACTAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Door Angle Potentiometer A
+1DAHAT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Housing Temp A Offset
+1DAHBT    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #Detector Assy. Housing Temp B Offset
+1DEICACU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA Input Current A
+1DEICBCU    -999.0    999.0    -999.0    999.0    -999.0    999.0    -999.0    999.0    #DEA Input Current B

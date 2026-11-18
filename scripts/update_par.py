@@ -1,9 +1,9 @@
-#!/proj/sot/ska3/flight/bin/python
+#!/usr/bin/env python
 """
 **update_par.py:** read op_limits.db database to update .par files for dumps monitoring
 
 :Author: w. aaron ( william.aaron@cfa.harvard.edu)
-:Last Updated: Nov 08, 2023
+:Last Updated: Nov 09, 2026
 
 # /// testing
 # tested-ska-release = "2026.1"
@@ -11,32 +11,70 @@
 """
 
 import os
-import time
-
+from cxotime import CxoTime
+from pathlib import Path
+import argparse
 #
 #--- Globals
 #
+#: TODO Improve resource files for this script set. Topology changes will prevent reading this in current state.
+#: maybe consider having these two files in the resource directory,
+#: then on the OCC LAN we have an rsync command to periodically fetch this resource
+OP_LIMITS_DATABASE = Path("/data/mta/Script/MSID_limit/op_limits.db")
+ACIS_THERMAL_LIMITS = Path("/proj/web-cxc/htdocs/acis/Thermal/MSID_Limits.txt")
 
-OP_LIMITS_DATABASE = "/data/mta/Script/MSID_limit/op_limits.db"
-ACIS_THERMAL_LIMITS = "/proj/web-cxc/htdocs/acis/Thermal/MSID_Limits.txt"
-MAIN_DIR = "/data/mta/Script/Dumps/Dumps_mon"
-OUT_DIR = MAIN_DIR
-PAR_FILE_LIST = [f"{MAIN_DIR}/aca_check.par",f"{MAIN_DIR}/acis_check.par",f"{MAIN_DIR}/acis_temp.par"]
+if os.getenv('DUMPS_PROCESS_ROOT') is not None:
+    DUMPS_PROCESS_ROOT = Path(os.getenv('DUMPS_PROCESS_ROOT'))
+else:
+    #: Running script is in a script subdirectory to the Dumps processing root.
+    DUMPS_PROCESS_ROOT = Path(__file__).resolve().parent.parent
+
+SCRIPT_RESOURCE_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'resource'
+DUMPS_MON_PARAMETER_DIR = DUMPS_PROCESS_ROOT / 'Scripts' / 'parameter'
+DUMPS_MON_PARAMETER_DIR.mkdir(exist_ok=True)
+
+if os.getenv("DUMPS_TRACELOG_DIR") is not None:
+    DUMPS_TRACELOG_DIR = Path(os.getenv("DUMPS_TRACELOG_DIR"))
+else:
+    DUMPS_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
+
+PAR_FILE_TEMPLATE_LIST = [
+    Path(f"{SCRIPT_RESOURCE_DIR}/aca_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_check.template"),
+    Path(f"{SCRIPT_RESOURCE_DIR}/acis_temp.template")
+]
 OVERWRITE_WITH_OP_LIMITS = True
 OVERWRITE_WITH_ACIS = True
-CHANDRA_TIME_DIFF = 883612730.816
 
-def update_par():
+_HEADER = "		Health & Safety 		Data Quality\nmnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions\n"
+
+class FileWriter:
+    """Write text contents out to text files in configured directory"""
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.directory.mkdir(parents=True, exist_ok=True)
+    def write(self, filename, content):
+        with open(self.directory / filename, "w") as f:
+            f.write(content)
+
+class StdoutWriter:
+    """Write text contents to stdout, typically for a test run of the script"""
+    def write(self, filename, content):
+        print(f"===== {filename} =====")
+        print(content, end="")
+
+def _grab_cxonow():
+    return CxoTime()
+
+def update_par(writer):
     """
     update_par - Permute across .par files and pull data for updating file
     input: none, but read from list of .par files and op_limits_db to update .par files
     output: updated .par files (locally saved)
     """
-    for file in PAR_FILE_LIST:
+    for file in PAR_FILE_TEMPLATE_LIST:
         with open(file,'r') as f:
             raw_data =  f.readlines()
-        #Maintain header as the same format of content
-        header = raw_data[:2]
         data = [x.strip().split() for x in raw_data[2:]]
         par_data = []
         #Formatted by space separation, but that includes comments separation
@@ -56,14 +94,11 @@ def update_par():
         if OVERWRITE_WITH_ACIS:
             par_dict = update_acis_ver_par(par_dict)
         
-        ofile = f"{OUT_DIR}/{os.path.basename(file)}"
-        with open(ofile,'w') as f:
-            for line in header:
-                f.write(line)
-            for k,v in par_dict.items():
-                line = f"{k}    {'    '.join(v[0])}\n"
-                f.write(line)
-
+        content = _HEADER
+        for k,v in par_dict.items():
+            content += f"{k}    {'    '.join(v[0])}\n"
+        
+        writer.write(file.with_suffix('.par').name, content)
 
 def update_par_file_data(par_dict):
     """
@@ -113,6 +148,7 @@ def update_acis_ver_par(par_dict):
     """
     #Note that the acis text file does not specify temperature units, consistently using celcius only.
     msid_list = list(par_dict.keys())
+    now = _grab_cxonow()
 
     with open(ACIS_THERMAL_LIMITS,'r') as f:
         data = [x.strip().split() for x in f.readlines() if x[0] != '#']
@@ -135,7 +171,7 @@ def update_acis_ver_par(par_dict):
             comment = entry_list[6]
             if comment[0] != "#":
                 comment = f"#{comment}"
-            update_time = time.time() - CHANDRA_TIME_DIFF
+            update_time = float(now.secs)
             par_dict[msid] = [[yel_min, yel_max, red_min, red_max, yel_min, yel_max, red_min, red_max, comment] , update_time]
     
     return par_dict
@@ -153,4 +189,13 @@ def format_K_to_C(val, chk):
     return str(round(val,2))
     
 if __name__ == "__main__":
-    update_par()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", help = "Determine data output path. Write stdout for standard out.")
+    args = parser.parse_args()
+
+    if args.path == "stdout":
+        writer = StdoutWriter()
+    else:
+        writer = FileWriter(args.path or DUMPS_MON_PARAMETER_DIR)
+
+    update_par(writer)
