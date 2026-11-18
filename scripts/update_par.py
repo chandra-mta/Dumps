@@ -48,10 +48,25 @@ OVERWRITE_WITH_ACIS = True
 
 _HEADER = "		Health & Safety 		Data Quality\nmnemonic	yel lo	yel hi	red lo	red hi	yel lo	yel hi	red lo	red hi	descriptions\n"
 
+class FileWriter:
+    """Write text contents out to text files in configured directory"""
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.directory.mkdir(parents=True, exist_ok=True)
+    def write(self, filename, content):
+        with open(self.directory / filename, "w") as f:
+            f.write(content)
+
+class StdoutWriter:
+    """Write text contents to stdout, typically for a test run of the script"""
+    def write(self, filename, content):
+        print(f"===== {filename} =====")
+        print(content, end="")
+
 def _grab_cxonow():
     return CxoTime()
 
-def update_par():
+def update_par(writer):
     """
     update_par - Permute across .par files and pull data for updating file
     input: none, but read from list of .par files and op_limits_db to update .par files
@@ -60,8 +75,6 @@ def update_par():
     for file in PAR_FILE_TEMPLATE_LIST:
         with open(file,'r') as f:
             raw_data =  f.readlines()
-        #Maintain header as the same format of content
-        header = raw_data[:2]
         data = [x.strip().split() for x in raw_data[2:]]
         par_data = []
         #Formatted by space separation, but that includes comments separation
@@ -176,4 +189,13 @@ def format_K_to_C(val, chk):
     return str(round(val,2))
     
 if __name__ == "__main__":
-    update_par()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", help = "Determine data output path. Write stdout for standard out.")
+    args = parser.parse_args()
+
+    if args.path == "stdout":
+        writer = StdoutWriter()
+    else:
+        writer = FileWriter(args.path or DUMPS_MON_PARAMETER_DIR)
+
+    update_par(writer)
