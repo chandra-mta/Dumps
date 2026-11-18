@@ -16,7 +16,8 @@
 use Cwd qw( abs_path );
 use File::Basename qw( dirname );
 use lib dirname(abs_path($0)); # updates @INC with path to executable
-
+use File::Find;
+use JSON;
 #use Chex;
 use Discrete;
 
@@ -876,7 +877,8 @@ foreach $file (@acisfiles) {
 
   close ACISFILE;
 }
-open(ACAPAR,"<aca_check.par");
+open(ACAPAR, "<", "$parameter_dir/aca_check.par")
+    or die "Cannot open $parameter_dir/aca_check.par: $!";
 my %acapar;
 <ACAPAR>;
 <ACAPAR>;
@@ -928,7 +930,8 @@ for ( $j=0; $j<=$#akeys; $j++ ) {
 close REPORT;
 # ----------- end aca checks
 
-open(ACISPAR,"<acis_check.par");
+open(ACISPAR, "<", "$parameter_dir/acis_check.par")
+    or die "Cannot open $parameter_dir/acis_check.par: $!";
 my %acispar;
 <ACISPAR>;
 <ACISPAR>;
@@ -1016,7 +1019,8 @@ foreach $file (@acisfiles) {
 
   close ACISFILE;
 }
-open(ACISPAR,"<acis_temp.par");
+open(ACISPAR, "<", "$parameter_dir/acis_temp.par")
+    or die "Cannot open $parameter_dir/acis_temp.par: $!";
 my %acispar;
 <ACISPAR>;
 <ACISPAR>;
@@ -1590,8 +1594,7 @@ if ( -s "testfile.out" ) {
 }
 
 #  E-mail violations, if any
-my $lockfile = "./.dumps_mon_lock";
-my $safefile = "/home/mta/Snap/.scs107alert";  # lock created by snapshot
+my $lockfile = $report_dir."/.dumps_mon.lock";
 if ( -s $outfile ) {
   if ( -s $lockfile || -s $safefile ) {  # already sent, don't send again
     open_alert_mail(
@@ -1646,7 +1649,7 @@ unlink $outfile;
 #  E-mail aca violations, if any
 # *******************************************************************
 #  E-mail violations, if any
-$lockfile = "./.dumps_mon_aca_lock";
+$lockfile = $report_dir."/.dumps_mon_aca.lock";
 if ( -s $acafile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
@@ -1695,7 +1698,7 @@ unlink $acafile;
 #  E-mail acis violations, if any
 # *******************************************************************
 #  E-mail violations, if any
-$lockfile = "./.dumps_mon_acis_lock";
+$lockfile = $report_dir."/.dumps_mon_acis.lock";
 if ( -s $aoutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
@@ -1751,7 +1754,7 @@ unlink $aoutfile;
 #  E-mail extra acis violations, if any
 # *******************************************************************
 #  E-mail violations, if any
-$lockfile = "./.dumps_mon_acis_temp_lock";
+$lockfile = $report_dir."/.dumps_mon_acis_temp.lock";
 if ( -s $atoutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
@@ -1805,7 +1808,7 @@ unlink $atoutfile;
 #  E-mail acis dea hk temp violations, if any
 # *******************************************************************
 #  E-mail violations, if any
-$lockfile = "./.dumps_mon_deatemp_lock";
+$lockfile = $report_dir."/.dumps_mon_deatemp.lock";
 if ( -s $doutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
@@ -1858,7 +1861,7 @@ unlink $doutfile;
 # *******************************************************************
 #  E-mail iru violations, if any
 # *******************************************************************
-$lockfile = "./.dumps_mon_iru_lock";
+$lockfile = $report_dir."/.dumps_mon_iru.lock";
 if ( -s $ioutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
@@ -2038,7 +2041,7 @@ unlink $ioutfile;
 # *******************************************************************
 #  E-mail pline violations, if any
 # *******************************************************************
-$lockfile = "./.dumps_mon_mups_lock";
+$lockfile = $report_dir."/.dumps_mon_mups.lock";
 if ( -s $poutfile ) {
   if ( -s $lockfile ) {  # already sent, don't send again
     open_alert_mail(
