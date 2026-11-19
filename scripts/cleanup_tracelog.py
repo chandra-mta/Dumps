@@ -25,3 +25,16 @@ if os.getenv("DUMPS_TRACELOG_DIR") is not None:
 else:
     DUMPS_TRACELOG_DIR = DUMPS_PROCESS_ROOT / 'tracelog'
 DUMPS_TRACELOG_DIR.mkdir(exist_ok=True)
+
+def grab_now():
+    return datetime.now()
+
+def pull_process_tracelog_state(state_file):
+    """
+    Load the processed_tracelogs.json state file and return a dictionary of processed tracelog files.
+    """
+    if not state_file.exists():
+        return {}
+    with open(state_file, 'r') as f:
+        state = json.load(f)
+    return state
