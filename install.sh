@@ -17,6 +17,10 @@ source "$SOURCE_DIR/version.conf"
 #: Build ISO 8601 timestamp
 BUILD=$(date -u +"%Y%m%dT%H%M%SZ")
 
+#: Define the primary and secondary locations. Alwasy consult what is actually running on MTA systems for determining primary and secondary installations.
+PRIMARY_DIR="/data/mta/Script/Dumps"
+SECONDARY_DIR="/data/mta4/Script/Dumps"
+
 usage() {
     cat <<EOF
 MTA Dumps Parsing Installer
@@ -55,10 +59,10 @@ case "$1" in
         exit 0
         ;;
     primary)
-        SCRIPT_ROOT=/data/mta/Script/Dumps
+        SCRIPT_ROOT="${PRIMARY_DIR}"
         ;;
     secondary)
-        SCRIPT_ROOT=/data/mta4/Script/Dumps
+        SCRIPT_ROOT="${SECONDARY_DIR}"
         ;;
     *)
         SCRIPT_ROOT="$1"
@@ -69,6 +73,7 @@ esac
 SCRIPT_ROOT="$(realpath -m "${SCRIPT_ROOT}")"
 mkdir -p "${SCRIPT_ROOT}"
 
+#: Run the source code rsync
 rsync \
     -av \
     --delete \
@@ -76,6 +81,33 @@ rsync \
     --exclude-from="${SOURCE_DIR}/deploy-exclude.txt" \
     "${SOURCE_DIR}/" \
     "${SCRIPT_ROOT}/"
+
+#: Determine if the processing state files are present, and if not, warn the installer and suggest copiable locations.
+check_state_file() {
+    local state_file="$1"
+    local target="${SCRIPT_ROOT}/scripts/state/${state_file}"
+
+    if [[ ! -f "$target" ]]; then
+        #: Missing state file. Recommend copying.
+        echo
+        echo -e "${YELLOW}=================================================================${NC}"
+        echo -e "${YELLOW}STATE FILE REQUIRED${NC}"
+        echo -e "${YELLOW}=================================================================${NC}"
+        echo
+        echo "Missing state file:"
+        echo "    ${target}"
+        echo
+        echo "State files keep track of which Dump/tracelog files have been processed by this software to avoid repetition."
+        echo "Check primary and secondary locations of Dumps processing for file copies."
+        echo "PRIMARY_DIR=${PRIMARY_DIR}"
+        echo "SECONDARY_DIR=${SECONDARY_DIR}"
+        echo "and copy to your installed location."
+        echo
+    fi
+}
+
+check_state_file "processed_dumps.json"
+check_state_file "processed_tracelogs.json"
 
 #: Create a template instance environment file if it does not exist
 if [[ ! -f "${SCRIPT_ROOT}/instance/.env" ]]; then
