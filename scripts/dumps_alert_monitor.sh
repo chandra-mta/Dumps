@@ -28,3 +28,6 @@ fi
 
 #: Run the alert monitor perl script (built from the original dumps_mon_2.6.pl)
 perl dumps_alert_monitor.pl
+
+#: Run the python tracelog cleanup script to prevent data overflow
+python cleanup_tracelog.py
