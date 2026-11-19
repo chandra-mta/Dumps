@@ -3,6 +3,16 @@
 This repository handles the parsing of dumps files into tracelog intermediary file for downstream resources
 as well as running a Dumps_mon monitoring perl apparatus to send notifications of abnormal MSID behavior.
 
+## Dependencies
+
+The following dependencies must be accessible for the Dumps processing software to run properly:
+- GOT Dumps file archive file directory
+- A Ska3 Conda environment with Perl: (This doesn't have to be the flight isntallation. WE can create a copy of this environment)
+- Data systems software: (Specifically the acorn tool)
+- A file copy of the MTA op_limits.db limit database (for the update_par.py script updating alert parameters)
+- A file copy of the ACIS MSID_Limits.txt limit database (for the update_par.py script updating alert parameters)
+- A file copy of the Snapshot .scs107alert marker file (used in a small subsection of the Dumps alert monitor)
+- A local mail sever with the ability to email the mtadude@cfa.harvard.edu and acisdude@cfa.harvard.edu distribution lists.
 
 ## Scripts
 
