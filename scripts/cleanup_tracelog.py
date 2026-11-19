@@ -74,3 +74,9 @@ def pull_process_tracelog_state(state_file):
     with open(state_file, 'r') as f:
         state = json.load(f)
     return state
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action=argparse.BooleanOptionalAction, default=False, help = "Print status update messages")
+    args = parser.parse_args()
+    cleanup_tracelog_files(verbose=args.verbose)
